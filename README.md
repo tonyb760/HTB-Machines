@@ -7,60 +7,65 @@
 [![Hack The Box](https://img.shields.io/badge/Hack%20The%20Box-Writeups-9FEF00?style=for-the-badge&logo=hackthebox&logoColor=black)](https://www.hackthebox.com/)
 ![Security](https://img.shields.io/badge/Focus-Offensive%20Security-2563EB?style=for-the-badge&logo=gnometerminal&logoColor=white)
 ![Spoiler Policy](https://img.shields.io/badge/Policy-Retired%20Boxes%20Only-7C3AED?style=for-the-badge)
-![Status](https://img.shields.io/badge/Repo-Learning%20Journal-22C55E?style=for-the-badge)
+![Guides](https://img.shields.io/badge/Creative%20Guides-10-22C55E?style=for-the-badge&logo=markdown&logoColor=white)
 
 <br>
 
-### 🧠 A curated collection of Hack The Box machine notes, walkthroughs, and post-solve reflections.
+### 🧠 Hack The Box writeups, clean-room reflections, and creative methodology guides.
 
-<sub>Built for learning, documentation practice, and methodology refinement — not for copy/paste flag hunting.</sub>
+<sub>Built for learning, documentation practice, methodology refinement, and defender-minded takeaways.</sub>
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Spoiler policy:** Full walkthroughs are only published after machines retire. Active-box posts are kept spoiler-light: no flags, passwords, hashes, exact object names, target IPs, or complete exploit chains.
+> **Spoiler policy:** Full walkthroughs are only published after machines retire. Active-box content is kept spoiler-light: no flags, passwords, hashes, exact object names, target IPs, or complete exploit chains.
 
 ---
 
-## 🗺️ Repository Map
+# 🗺️ Repository Map
 
-<table>
-<tr>
-<td width="50%" valign="top">
+## 🧾 Writeups
 
-### 🧾 Writeups
+| # | Machine | File | Type | Main Theme | Status |
+|---:|---|---|---|---|---|
+| 1 | **Blocky** | [`Blocky-HTB-Creative-Guide.md`](./Blocky-HTB-Creative-Guide.md) | Full creative guide | WordPress, plugin JAR secrets, sudo | ✅ Retired / Published |
+| 2 | **Dog** | [`Dog-HTB-Creative-Guide.md`](./Dog-HTB-Creative-Guide.md) | Full creative guide | Exposed Git, Backdrop CMS, sudo `bee eval` | ✅ Retired / Published |
+| 3 | **Down** | [`Down-HTB-Creative-Guide.md`](./Down-HTB-Creative-Guide.md) | Full creative guide | SSRF, curl option injection, vault disclosure, sudo | ✅ Retired / Published |
+| 4 | **Editor** | [`Editor-HTB-Creative-Guide.md`](./Editor-HTB-Creative-Guide.md) | Full creative guide | XWiki RCE, config creds, Netdata `ndsudo` privesc | ✅ Retired / Published |
+| 5 | **Fluffy** | [`Fluffy-HTB-Creative-Guide.md`](./Fluffy-HTB-Creative-Guide.md) | Full creative guide | ADCS, NTLM coercion, ESC16, shadow credentials | ✅ Retired / Published |
+| 6 | **Lame** | [`Lame-HTB-Creative-Guide.md`](./Lame-HTB-Creative-Guide.md) | Full creative guide | Legacy Samba usermap script RCE | ✅ Retired / Published |
+| 7 | **Love** | [`Love-HTB-Creative-Guide.md`](./Love-HTB-Creative-Guide.md) | Full creative guide | SSRF, Voting System upload RCE, AlwaysInstallElevated | ✅ Retired / Published |
+| 8 | **Netmon** | [`Netmon-HTB-Creative-Guide.md`](./Netmon-HTB-Creative-Guide.md) | Full creative guide | Anonymous FTP, PRTG credentials, authenticated RCE | ✅ Retired / Published |
+| 9 | **Support** | [`Support-HTB-Creative-Guide.md`](./Support-HTB-Creative-Guide.md) | Full creative guide | AD enumeration, LDAP secrets, RBCD to Administrator | ✅ Retired / Published |
+| 10 | **TwoMillion** | [`TwoMillion-HTB-Creative-Guide.md`](./TwoMillion-HTB-Creative-Guide.md) | Full creative guide | API abuse, command injection, OverlayFS CVE-2023-0386 | ✅ Retired / Published |
+| 11 | **Checkpoint** | [`Checkpoint_HTB_NoSpoilers.md`](./Checkpoint_HTB_NoSpoilers.md) | No-spoiler reflection | AD, evidence handling, branch control | ⚠️ Active-safe only |
+| 12 | **Logging** | [`Logging-HTB.md`](./Logging-HTB.md) | GitHub-safe / active-box style | ADCS, gMSA, WSUS spoofing | ⚠️ Active-safe only |
+| 13 | **Reactor** | [`Reactor.md`](./Reactor.md) | Clean-room methodology | Next.js RCE, SQLite, Node Inspector | ⚠️ Active-safe only |
+| 14 | **Snapped** | [`Snapped_HTB_Writeup.html`](./Snapped_HTB_Writeup.html) | Creative HTML report | Visual report format | ✅ Published |
 
-| Machine | Type | Theme | Status |
-|---|---|---|---|
-| [`Logging`](./Logging-HTB.md) | Full / GitHub-safe | ADCS, gMSA, WSUS spoofing | ✅ Published |
-| [`Checkpoint`](./Checkpoint_HTB_NoSpoilers.md) | No-spoiler reflection | AD, evidence handling, branch control | ✅ Published |
-| [`Reactor`](./Reactor.md) | Clean-room methodology | Next.js RCE, SQLite, Node Inspector | ✅ Published |
-| [`Snapped`](./Snapped_HTB_Writeup.html) | Creative HTML report | Visual report format | ✅ Published |
+---
 
-</td>
-<td width="50%" valign="top">
-
-### 🧰 Methodology Themes
+## 🧰 Methodology Themes
 
 | Area | Practiced In |
 |---|---|
-| Active Directory enumeration | Logging, Checkpoint |
-| ADCS review | Logging |
-| WSUS abuse concepts | Logging |
-| Web application RCE | Reactor |
-| Local privilege escalation | Reactor, Logging |
-| Evidence-driven analysis | Checkpoint |
-| Clean technical writing | All |
-
-</td>
-</tr>
-</table>
+| Active Directory enumeration | Support, Fluffy, Logging, Checkpoint |
+| RBCD / Kerberos abuse | Support |
+| ADCS / certificate abuse | Fluffy, Logging |
+| Web application RCE | Editor, Love, Reactor |
+| Source/config disclosure | Dog, Blocky, Editor |
+| SSRF / file disclosure | Down, Love |
+| Legacy service exploitation | Lame, Netmon |
+| Linux privilege escalation | TwoMillion, Down, Editor, Dog, Blocky, Lame |
+| Windows privilege escalation | Love, Support, Fluffy, Netmon |
+| Evidence-driven analysis | Checkpoint, Netmon, Dog |
+| Creative report writing | Snapped, all creative guides |
 
 ---
 
-## 🧭 What This Repo Is
+# 🧭 What This Repo Is
 
 This repository is my public Hack The Box knowledge base. Each writeup is meant to capture more than just the final exploit path. I try to document:
 
@@ -81,64 +86,65 @@ Recon → Hypothesis → Validation → Pivot → Exploit → PrivEsc → Lesson
 
 ---
 
-## 🔥 Featured Writeups
+# 🔥 Featured Writeups
 
 <table>
 <tr>
 <td width="33%" valign="top">
 
-<h3 align="center">🪵 Logging</h3>
+<h3 align="center">🧾 Support</h3>
 
 <div align="center">
 
-![Windows](https://img.shields.io/badge/Windows-Server%202019-0078D6?style=flat-square&logo=windows&logoColor=white)
-![AD](https://img.shields.io/badge/Active%20Directory-111827?style=flat-square)
-![WSUS](https://img.shields.io/badge/WSUS-Spoofing-22C55E?style=flat-square)
+![Windows](https://img.shields.io/badge/Windows-Active%20Directory-0078D6?style=flat-square&logo=windows&logoColor=white)
+![RBCD](https://img.shields.io/badge/RBCD-Kerberos-7C3AED?style=flat-square)
+![LDAP](https://img.shields.io/badge/LDAP-Secrets-F97316?style=flat-square)
 
 </div>
 
-A Windows AD chain involving readable logs, gMSA credential recovery, AD-integrated DNS, certificate trust, and WSUS update abuse.
+A clean AD chain from anonymous share exposure to LDAP secrets, BloodHound-style relationship analysis, and RBCD-based Administrator impersonation.
 
-**Core lesson:** operational logs and trust infrastructure can combine into a domain compromise path.
+**Core lesson:** one dangerous ACL edge on a DC computer object can become full domain compromise.
 
-➡️ [`Read Logging`](./Logging-HTB.md)
+➡️ [`Read Support`](./Support-HTB-Creative-Guide.md)
 
 </td>
 <td width="33%" valign="top">
 
-<h3 align="center">🛡️ Checkpoint</h3>
-
-<div align="center">
-
-![Windows](https://img.shields.io/badge/Windows-AD-0078D6?style=flat-square&logo=windows&logoColor=white)
-![No Spoilers](https://img.shields.io/badge/No%20Spoilers-Safe-7C3AED?style=flat-square)
-
-</div>
-
-A spoiler-safe Active Directory reflection focused on permission validation, artifact triage, Kerberos/tooling edge cases, and avoiding tunnel vision.
-
-**Core lesson:** branch control matters as much as exploitation.
-
-➡️ [`Read Checkpoint`](./Checkpoint_HTB_NoSpoilers.md)
-
-</td>
-<td width="33%" valign="top">
-
-<h3 align="center">⚛️ Reactor</h3>
+<h3 align="center">🧪 Editor</h3>
 
 <div align="center">
 
 ![Linux](https://img.shields.io/badge/Linux-Ubuntu-E95420?style=flat-square&logo=ubuntu&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-RCE-000000?style=flat-square&logo=nextdotjs&logoColor=white)
-![Node](https://img.shields.io/badge/Node%20Inspector-Privesc-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![XWiki](https://img.shields.io/badge/XWiki-Groovy%20RCE-F97316?style=flat-square)
+![Netdata](https://img.shields.io/badge/Netdata-ndsudo%20Privesc-00AB44?style=flat-square)
 
 </div>
 
-A clean-room writeup for a Linux web box: framework fingerprinting, pre-auth RCE methodology, local DB discovery, and Node Inspector privilege escalation.
+A web-to-root Linux chain involving XWiki Groovy injection, configuration credential reuse, and Netdata `ndsudo` PATH injection.
 
-**Core lesson:** localhost debug services are not security boundaries.
+**Core lesson:** application config secrets and helper binaries often complete the path after RCE.
 
-➡️ [`Read Reactor`](./Reactor.md)
+➡️ [`Read Editor`](./Editor-HTB-Creative-Guide.md)
+
+</td>
+<td width="33%" valign="top">
+
+<h3 align="center">🐶 Dog</h3>
+
+<div align="center">
+
+![Linux](https://img.shields.io/badge/Linux-Web%20Box-22C55E?style=flat-square&logo=linux&logoColor=white)
+![Git](https://img.shields.io/badge/Exposed-.git-111827?style=flat-square&logo=git&logoColor=white)
+![CMS](https://img.shields.io/badge/Backdrop-CMS-8B5CF6?style=flat-square)
+
+</div>
+
+A source-disclosure-driven solve: exposed Git leaks Backdrop CMS secrets, credentials reuse into SSH, and sudo `bee eval` becomes root command execution.
+
+**Core lesson:** exposed source control can reveal the whole operational trust chain.
+
+➡️ [`Read Dog`](./Dog-HTB-Creative-Guide.md)
 
 </td>
 </tr>
@@ -146,13 +152,11 @@ A clean-room writeup for a Linux web box: framework fingerprinting, pre-auth RCE
 
 ---
 
-## 🧩 Writeup Style Guide
-
-I use different formats depending on the box and disclosure posture:
+# 🧩 Writeup Style Guide
 
 | Format | When I Use It | Includes |
 |---|---|---|
-| **Full Walkthrough** | Retired boxes with no active-spoiler concern | Detailed path, commands, reasoning, defenses |
+| **Full Creative Guide** | Retired boxes with local root completion | Detailed chain, visual map, commands, lessons, defenses |
 | **No-Spoiler Reflection** | Active/recent boxes or public-safe notes | Themes, lessons, high-level flow |
 | **Clean-Room Methodology** | Technique-focused posts | Concepts and decision points without free-win payloads |
 | **Creative Report** | Portfolio-style reports | HTML/visual storytelling, charts, narrative sections |
@@ -162,7 +166,7 @@ I use different formats depending on the box and disclosure posture:
 
 ---
 
-## 🕸️ Methodology Graph
+# 🕸️ Methodology Graph
 
 ```mermaid
 flowchart LR
@@ -180,7 +184,7 @@ flowchart LR
 
 ---
 
-## 🧠 Skills Practiced Across the Repo
+# 🧠 Skills Practiced Across the Repo
 
 <div align="center">
 
@@ -190,29 +194,29 @@ flowchart LR
 | 🪪 Auth Testing | SMB/LDAP/WinRM/SSH validation |
 | 🏛️ Active Directory | Users, groups, ACLs, BloodHound-style reasoning |
 | 📜 ADCS | Template review, EKUs, enrollment rights |
-| 📁 Evidence Handling | Logs, shares, SQLite DBs, offline artifacts |
+| 📁 Evidence Handling | Logs, shares, SQLite DBs, offline artifacts, source repos |
 | 🧪 Exploit Validation | CVE research, patch-level matching, safe proofing |
-| 🧬 PrivEsc | gMSA, debug interfaces, scheduled/update workflows |
+| 🧬 PrivEsc | gMSA, debug interfaces, scheduled/update workflows, sudo/SUID |
 | 🛡️ Defense | Remediation notes and detection-minded takeaways |
 
 </div>
 
 ---
 
-## 🧰 Toolkit Highlight
-
-These are common tools and categories that show up throughout the notes:
+# 🧰 Toolkit Highlight
 
 ```text
 nmap        netexec / nxc     ldapsearch      smbclient
 certipy-ad  bloodyAD          impacket        BloodHound
-ffuf        curl/httpx        hashcat         sqlite3
-linpeas     winpeas           PowerShell      Python
+ffuf        feroxbuster       curl/httpx      hashcat
+git-dumper  wpscan           sshpass         sqlite3
+linpeas     winpeas           msfvenom        Python
+PowerShell  certipy           responder       ntlmrelayx
 ```
 
 ---
 
-## 🔐 Disclosure & Ethics
+# 🔐 Disclosure & Ethics
 
 - I follow Hack The Box rules and avoid posting active-box spoilers.
 - Flags are never included in public-safe posts.
@@ -222,39 +226,48 @@ linpeas     winpeas           PowerShell      Python
 
 ---
 
-## 📊 Current Coverage
+# 📊 Current Coverage
 
 <div align="center">
 
-| OS | Count | Notes |
+| OS / Category | Count | Examples |
 |---|---:|---|
-| Windows / AD | 2+ | Logging, Checkpoint |
-| Linux / Web | 1+ | Reactor |
+| Windows / AD | 4+ | Support, Fluffy, Logging, Checkpoint |
+| Windows / Web + PrivEsc | 2+ | Love, Netmon |
+| Linux / Web + PrivEsc | 7+ | TwoMillion, Down, Editor, Dog, Blocky, Reactor, Lame |
+| Full Creative Markdown Guides | 10 | TwoMillion, Support, Fluffy, Down, Editor, Dog, Love, Netmon, Blocky, Lame |
+| Active-safe / No-spoiler Posts | 3 | Logging, Checkpoint, Reactor |
 | Creative HTML Reports | 1+ | Snapped |
 
 <br>
 
+![Creative Guides](https://img.shields.io/badge/Creative%20Guides-10-9FEF00?style=for-the-badge&logo=markdown&logoColor=black)
+![Writeups](https://img.shields.io/badge/Total%20Writeups-14-2563EB?style=for-the-badge)
 ![Windows](https://img.shields.io/badge/Windows%20AD-Growing-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-Web%20%26%20PrivEsc-E95420?style=for-the-badge&logo=linux&logoColor=white)
-![Reports](https://img.shields.io/badge/Reports-Visual%20Storytelling-EC4899?style=for-the-badge)
 
 </div>
 
 ---
 
-## 📝 Suggested Reading Order
+# 📝 Suggested Reading Order
 
-1. **Start with [`Checkpoint`](./Checkpoint_HTB_NoSpoilers.md)** if you want a spoiler-safe AD mindset piece.
-2. **Read [`Reactor`](./Reactor.md)** if you like web-to-root methodology and clean-room explanations.
-3. **Read [`Logging`](./Logging-HTB.md)** if you want a deeper AD chain involving logs, gMSA, ADCS, DNS, and WSUS.
-4. **Open [`Snapped`](./Snapped_HTB_Writeup.html)** if you want a more visual report-style format.
+1. **Classic fundamentals:** [`Lame`](./Lame-HTB-Creative-Guide.md) → [`Blocky`](./Blocky-HTB-Creative-Guide.md)
+2. **Linux web-to-root:** [`TwoMillion`](./TwoMillion-HTB-Creative-Guide.md) → [`Down`](./Down-HTB-Creative-Guide.md) → [`Editor`](./Editor-HTB-Creative-Guide.md)
+3. **Source/config disclosure:** [`Dog`](./Dog-HTB-Creative-Guide.md)
+4. **Windows web/privesc:** [`Love`](./Love-HTB-Creative-Guide.md) → [`Netmon`](./Netmon-HTB-Creative-Guide.md)
+5. **Active Directory chains:** [`Support`](./Support-HTB-Creative-Guide.md) → [`Fluffy`](./Fluffy-HTB-Creative-Guide.md)
+6. **Spoiler-safe mindset posts:** [`Checkpoint`](./Checkpoint_HTB_NoSpoilers.md) → [`Reactor`](./Reactor.md) → [`Logging`](./Logging-HTB.md)
+7. **Visual report style:** [`Snapped`](./Snapped_HTB_Writeup.html)
 
 ---
 
-## 🚀 Roadmap
+# 🚀 Roadmap
 
-- [ ] Add difficulty badges for each machine
-- [ ] Add tags at the top of every writeup
+- [x] Add full creative guides for first 10 retired/rooted boxes
+- [x] Add all writeups to the README writeups section
+- [ ] Add difficulty badges for every machine row
+- [ ] Add tags at the top of every guide
 - [ ] Add a machine index grouped by OS and technique
 - [ ] Add defensive detection notes to each retired-box walkthrough
 - [ ] Add screenshots/diagrams where GitHub-safe
@@ -262,7 +275,7 @@ linpeas     winpeas           PowerShell      Python
 
 ---
 
-## 🤝 Connect / Feedback
+# 🤝 Connect / Feedback
 
 If you spot an error, have a cleaner way to explain a technique, or want to compare approaches, feel free to open an issue or reach out.
 
