@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/nimbus-cover.svg" alt="Nimbus HTB no-spoiler creative banner" width="100%">
-</p>
+
 
 <h1 align="center">☁️ Nimbus — A No-Spoiler Cloud-Noir Field Journal</h1>
 
