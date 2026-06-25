@@ -1,7 +1,7 @@
 
 # ╔══════════════════════════════════════════════════════════════╗
 # ║     🌌  N E X U S   —   F U L L   C O M P R O M I S E     ║
-# ║     HackTheBox  |  OS: Linux  |  Difficulty: Medium/Hard   ║
+# ║     HackTheBox  |  OS: Linux  |  Difficulty: Easy   ║
 # ╚══════════════════════════════════════════════════════════════╝
 
 ```
