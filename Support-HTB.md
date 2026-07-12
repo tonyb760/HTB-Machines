@@ -218,6 +218,11 @@ wmiexec.py -k -no-pass support.htb/Administrator@DC.SUPPORT.HTB 'type C:\Users\A
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Alert on anonymous SMB access, unusual LDAP reads of sensitive attributes, and unexpected computer-account creation.
+- Monitor directory changes to `msDS-AllowedToActOnBehalfOfOtherIdentity` and investigate service-ticket requests that impersonate privileged users.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Do not expose internal support tooling/configs over anonymous SMB |

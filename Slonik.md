@@ -18,7 +18,8 @@
 **Difficulty:** Medium
 **OS:** Linux
 **Released:** 2025-10-14
-**Creator:** xct
+**Creator:** xct<br>
+**Tags:** `linux` `nfs` `postgresql` `backup-automation` `privilege-escalation`
 
 ## 1. Recon & Enumeration
 

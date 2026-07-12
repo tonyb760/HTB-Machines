@@ -192,6 +192,11 @@ sshpass -p '8YsqfCTnvxAUeduzjNSXe22' ssh -tt notch@10.129.16.114 \
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Alert on requests that enumerate or download web-accessible plugin archives, especially from directory listings or unexpected paths.
+- Correlate web-tier secret exposure with new SSH password-authentication events and `sudo` execution by application-related accounts.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Never publish plugin source/JARs with embedded secrets |

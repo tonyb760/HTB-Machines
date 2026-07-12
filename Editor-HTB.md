@@ -199,6 +199,11 @@ sshpass -p 'theEd1t0rTeam99' ssh oliver@10.129.231.23 '/tmp/rootshell -p -c "id;
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Monitor XWiki request and application logs for unusual SolrSearch/Groovy evaluation failures, command-like input, and web-service child processes.
+- Alert when `ndsudo` or other SUID helpers launch binaries from writable or nonstandard paths.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Patch XWiki against CVE-2025-24893 |

@@ -10,6 +10,7 @@
 
 > **Spoiler posture:** this is a mood-and-method writeup. No flags, no exact exploit recipe, no copy-paste payload chain.  
 > **Core message:** Nimbus is not about one clever trick. It is about noticing where one component quietly trusts the next.
+> **Tags:** `web` `cloud` `queues` `containers` `trust-boundaries`
 
 ---
 

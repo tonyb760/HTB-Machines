@@ -28,23 +28,59 @@
 
 ## 🧾 Writeups
 
-| # | Machine | File | Type | Main Theme | Status |
-|---:|---|---|---|---|---|
-| 1 | **Blocky** | [`Blocky-HTB-Creative-Guide.md`](./Blocky-HTB-Creative-Guide.md) | Full creative guide | WordPress, plugin JAR secrets, sudo | ✅ Retired / Published |
-| 2 | **Dog** | [`Dog-HTB-Creative-Guide.md`](./Dog-HTB-Creative-Guide.md) | Full creative guide | Exposed Git, Backdrop CMS, sudo `bee eval` | ✅ Retired / Published |
-| 3 | **Down** | [`Down-HTB-Creative-Guide.md`](./Down-HTB-Creative-Guide.md) | Full creative guide | SSRF, curl option injection, vault disclosure, sudo | ✅ Retired / Published |
-| 4 | **Editor** | [`Editor-HTB-Creative-Guide.md`](./Editor-HTB-Creative-Guide.md) | Full creative guide | XWiki RCE, config creds, Netdata `ndsudo` privesc | ✅ Retired / Published |
-| 5 | **Fluffy** | [`Fluffy-HTB-Creative-Guide.md`](./Fluffy-HTB-Creative-Guide.md) | Full creative guide | ADCS, NTLM coercion, ESC16, shadow credentials | ✅ Retired / Published |
-| 6 | **Lame** | [`Lame-HTB-Creative-Guide.md`](./Lame-HTB-Creative-Guide.md) | Full creative guide | Legacy Samba usermap script RCE | ✅ Retired / Published |
-| 7 | **Love** | [`Love-HTB-Creative-Guide.md`](./Love-HTB-Creative-Guide.md) | Full creative guide | SSRF, Voting System upload RCE, AlwaysInstallElevated | ✅ Retired / Published |
-| 8 | **Netmon** | [`Netmon-HTB-Creative-Guide.md`](./Netmon-HTB-Creative-Guide.md) | Full creative guide | Anonymous FTP, PRTG credentials, authenticated RCE | ✅ Retired / Published |
-| 9 | **Support** | [`Support-HTB-Creative-Guide.md`](./Support-HTB-Creative-Guide.md) | Full creative guide | AD enumeration, LDAP secrets, RBCD to Administrator | ✅ Retired / Published |
-| 10 | **TwoMillion** | [`TwoMillion-HTB-Creative-Guide.md`](./TwoMillion-HTB-Creative-Guide.md) | Full creative guide | API abuse, command injection, OverlayFS CVE-2023-0386 | ✅ Retired / Published |
-| 11 | **Checkpoint** | [`Checkpoint_HTB_NoSpoilers.md`](./Checkpoint_HTB_NoSpoilers.md) | No-spoiler reflection | AD, evidence handling, branch control | ⚠️ Active-safe only |
-| 12 | **Logging** | [`Logging-HTB.md`](./Logging-HTB.md) | GitHub-safe / active-box style | ADCS, gMSA, WSUS spoofing | ⚠️ Active-safe only |
-| 13 | **Reactor** | [`Reactor.md`](./Reactor.md) | Clean-room methodology | Next.js RCE, SQLite, Node Inspector | ⚠️ Active-safe only |
-| 14 | **Snapped** | [`Snapped_HTB_Writeup.html`](./Snapped_HTB_Writeup.html) | Creative HTML report | Visual report format | ✅ Published |
-| 15 | **Orion** | [`Orion.md`](./Orion.md) | Full creative guide | Craft CMS RCE, CVE-2025-32432, telnetd injection | ✅ Retired / Published |
+> Difficulty badges reflect the rating stated in the corresponding local guide. **Unrated** means the guide does not state a rating; it is not an estimate.
+
+| # | Machine | File | Type | Difficulty | Main Theme | Status |
+|---:|---|---|---|---|---|---|
+| 1 | **Blocky** | [`Blocky-HTB.md`](./Blocky-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | WordPress, plugin JAR secrets, sudo | ✅ Retired / Published |
+| 2 | **Dog** | [`Dog-HTB.md`](./Dog-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | Exposed Git, Backdrop CMS, sudo `bee eval` | ✅ Retired / Published |
+| 3 | **Down** | [`Down-HTB.md`](./Down-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | SSRF, curl option injection, vault disclosure, sudo | ✅ Retired / Published |
+| 4 | **Editor** | [`Editor-HTB.md`](./Editor-HTB.md) | Full creative guide | ![Medium](https://img.shields.io/badge/Medium-F97316?style=flat-square) | XWiki RCE, config creds, Netdata `ndsudo` privesc | ✅ Retired / Published |
+| 5 | **Fluffy** | [`Fluffy-HTB.md`](./Fluffy-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | ADCS, NTLM coercion, ESC16, shadow credentials | ✅ Retired / Published |
+| 6 | **Lame** | [`Lame-HTB.md`](./Lame-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | Legacy Samba usermap script RCE | ✅ Retired / Published |
+| 7 | **Love** | [`Love-HTB.md`](./Love-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | SSRF, Voting System upload RCE, AlwaysInstallElevated | ✅ Retired / Published |
+| 8 | **Netmon** | [`Netmon-HTB.md`](./Netmon-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | Anonymous FTP, PRTG credentials, authenticated RCE | ✅ Retired / Published |
+| 9 | **Support** | [`Support-HTB.md`](./Support-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | AD enumeration, LDAP secrets, RBCD to Administrator | ✅ Retired / Published |
+| 10 | **TwoMillion** | [`TwoMillion-HTB.md`](./TwoMillion-HTB.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | API abuse, command injection, OverlayFS CVE-2023-0386 | ✅ Retired / Published |
+| 11 | **Checkpoint** | [`Checkpoint_HTB_NoSpoilers.md`](./Checkpoint_HTB_NoSpoilers.md) | No-spoiler reflection | ![Unrated](https://img.shields.io/badge/Unrated-64748B?style=flat-square) | AD, evidence handling, branch control | ⚠️ Active-safe only |
+| 12 | **Logging** | [`Logging-HTB.md`](./Logging-HTB.md) | GitHub-safe / active-box style | ![Unrated](https://img.shields.io/badge/Unrated-64748B?style=flat-square) | ADCS, gMSA, WSUS spoofing | ⚠️ Active-safe only |
+| 13 | **Reactor** | [`Reactor.md`](./Reactor.md) | Clean-room methodology | ![Medium](https://img.shields.io/badge/Medium-F97316?style=flat-square) | Next.js RCE, SQLite, Node Inspector | ⚠️ Active-safe only |
+| 14 | **Snapped** | [`Snapped_HTB_Writeup.html`](./Snapped_HTB_Writeup.html) | Creative HTML report | ![Hard](https://img.shields.io/badge/Hard-EF4444?style=flat-square) | Nginx UI, backup recovery, TOCTOU | ✅ Published |
+| 15 | **Orion** | [`Orion.md`](./Orion.md) | Full creative guide | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | Craft CMS RCE, CVE-2025-32432, telnetd injection | ✅ Retired / Published |
+| 16 | **Enigma** | [`Engma.md`](./Engma.md) | Spoiler-light field guide | ![Unrated](https://img.shields.io/badge/Unrated-64748B?style=flat-square) | Enumeration, web, local recon | ⚠️ Spoiler-safe |
+| 17 | **Fireflow** | [`Fireflow.md`](./Fireflow.md) | Full walkthrough | ![Medium](https://img.shields.io/badge/Medium-F97316?style=flat-square) | Langflow RCE, JWT, Kubernetes | ✅ Published |
+| 18 | **Ghostlink** | [`Ghostlink.md`](./Ghostlink.md) | Detailed guide | ![Hard](https://img.shields.io/badge/Hard-EF4444?style=flat-square) | MQTT, NTLM relay, ADCS | ✅ Published |
+| 19 | **MakeSense** | [`MakeSense.md`](./MakeSense.md) | Spoiler-free field notes | ![Unrated](https://img.shields.io/badge/Unrated-64748B?style=flat-square) | Web enumeration, hypothesis testing | ⚠️ Active-safe only |
+| 20 | **Nexus** | [`Nexus.md`](./Nexus.md) | Full walkthrough | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | Krayin CRM, Gitea, path traversal | ✅ Published |
+| 21 | **Nimbus** | [`Nimbus-HTB-No-Spoiler.md`](./Nimbus-HTB-No-Spoiler.md) | No-spoiler field journal | ![Unrated](https://img.shields.io/badge/Unrated-64748B?style=flat-square) | Web, cloud, queues, containers | ⚠️ Spoiler-safe |
+| 22 | **Paperwork** | [`Paperwork.md`](./Paperwork.md) | Narrative walkthrough | ![Easy](https://img.shields.io/badge/Easy-FACC15?style=flat-square) | Printer services, local daemons, root pivot | ✅ Published |
+| 23 | **Slonik** | [`Slonik.md`](./Slonik.md) | Technical guide | ![Medium](https://img.shields.io/badge/Medium-F97316?style=flat-square) | NFS, PostgreSQL, backup automation | ✅ Published |
+| 24 | **Sweep** | [`Sweep.md`](./Sweep.md) | GitHub-friendly walkthrough | ![Medium](https://img.shields.io/badge/Medium-F97316?style=flat-square) | Lansweeper, credential capture, ACL abuse | ✅ Published |
+
+---
+
+## 🗂️ Machine Index
+
+### By OS / platform
+
+| Platform | Machines | Primary techniques |
+|---|---|---|
+| Linux | Blocky, Dog, Down, Editor, Lame, TwoMillion, Orion, Reactor, Fireflow, Nexus, Paperwork, Slonik, Snapped | Web RCE, credential reuse, sudo/SUID, kernels, containers, local services |
+| Windows / Active Directory | Fluffy, Love, Netmon, Support, Checkpoint, Logging, Ghostlink, Sweep | ADCS, Kerberos/RBCD, NTLM, SSRF, upload RCE, service abuse, ACLs |
+| Unspecified / spoiler-safe | Enigma, MakeSense, Nimbus | Enumeration, trust boundaries, web workflows, cloud/container methodology |
+
+### By technique
+
+| Technique | Machines |
+|---|---|
+| Web application RCE | Editor, Love, TwoMillion, Orion, Reactor, Fireflow, Nexus |
+| Source, config, or backup disclosure | Blocky, Dog, Down, Editor, Netmon, Orion, Snapped |
+| Active Directory / certificate services | Support, Fluffy, Logging, Checkpoint, Ghostlink, Sweep |
+| SSRF / server-side reachability | Down, Love, Nimbus |
+| Credentials and password reuse | Blocky, Dog, Down, Editor, Netmon, Orion, Reactor, Snapped |
+| Linux privilege escalation | Blocky, Dog, Down, Editor, TwoMillion, Orion, Reactor, Fireflow, Nexus, Paperwork, Slonik, Snapped |
+| Windows privilege escalation | Love, Netmon, Support, Fluffy, Logging, Ghostlink, Sweep |
+| Containers / cloud / automation | Fireflow, Nimbus, Slonik |
 
 ---
 
@@ -109,7 +145,7 @@ A clean AD chain from anonymous share exposure to LDAP secrets, BloodHound-style
 
 **Core lesson:** one dangerous ACL edge on a DC computer object can become full domain compromise.
 
-➡️ [`Read Support`](./Support-HTB-Creative-Guide.md)
+➡️ [`Read Support`](./Support-HTB.md)
 
 </td>
 <td width="33%" valign="top">
@@ -128,7 +164,7 @@ A web-to-root Linux chain involving XWiki Groovy injection, configuration creden
 
 **Core lesson:** application config secrets and helper binaries often complete the path after RCE.
 
-➡️ [`Read Editor`](./Editor-HTB-Creative-Guide.md)
+➡️ [`Read Editor`](./Editor-HTB.md)
 
 </td>
 <td width="33%" valign="top">
@@ -147,7 +183,7 @@ A source-disclosure-driven solve: exposed Git leaks Backdrop CMS secrets, creden
 
 **Core lesson:** exposed source control can reveal the whole operational trust chain.
 
-➡️ [`Read Dog`](./Dog-HTB-Creative-Guide.md)
+➡️ [`Read Dog`](./Dog-HTB.md)
 
 </td>
 </tr>
@@ -235,17 +271,17 @@ PowerShell  certipy           responder       ntlmrelayx
 
 | OS / Category | Count | Examples |
 |---|---:|---|
-| Windows / AD | 4+ | Support, Fluffy, Logging, Checkpoint |
-| Windows / Web + PrivEsc | 2+ | Love, Netmon |
-| Linux / Web + PrivEsc | 8+ | TwoMillion, Down, Editor, Dog, Blocky, Reactor, Lame, Orion |
+| Windows / AD | 6 | Support, Fluffy, Logging, Checkpoint, Ghostlink, Sweep |
+| Windows / Web + PrivEsc | 2 | Love, Netmon |
+| Linux / Web + PrivEsc | 13 | TwoMillion, Down, Editor, Dog, Blocky, Reactor, Lame, Orion, Fireflow, Nexus, Paperwork, Slonik, Snapped |
 | Full Creative Markdown Guides | 11 | TwoMillion, Support, Fluffy, Down, Editor, Dog, Love, Netmon, Blocky, Lame, Orion |
-| Active-safe / No-spoiler Posts | 3 | Logging, Checkpoint, Reactor |
-| Creative HTML Reports | 1+ | Snapped |
+| Active-safe / No-spoiler Posts | 6 | Logging, Checkpoint, Reactor, Enigma, MakeSense, Nimbus |
+| Creative HTML Reports | 1 | Snapped |
 
 <br>
 
 ![Creative Guides](https://img.shields.io/badge/Creative%20Guides-11-9FEF00?style=for-the-badge&logo=markdown&logoColor=black)
-![Writeups](https://img.shields.io/badge/Total%20Writeups-15-2563EB?style=for-the-badge)
+![Writeups](https://img.shields.io/badge/Total%20Writeups-24-2563EB?style=for-the-badge)
 ![Windows](https://img.shields.io/badge/Windows%20AD-Growing-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-Web%20%26%20PrivEsc-E95420?style=for-the-badge&logo=linux&logoColor=white)
 
@@ -255,11 +291,11 @@ PowerShell  certipy           responder       ntlmrelayx
 
 # 📝 Suggested Reading Order
 
-1. **Classic fundamentals:** [`Lame`](./Lame-HTB-Creative-Guide.md) → [`Blocky`](./Blocky-HTB-Creative-Guide.md)
-2. **Linux web-to-root:** [`TwoMillion`](./TwoMillion-HTB-Creative-Guide.md) → [`Down`](./Down-HTB-Creative-Guide.md) → [`Editor`](./Editor-HTB-Creative-Guide.md) → [`Orion`](./Orion.md)
-3. **Source/config disclosure:** [`Dog`](./Dog-HTB-Creative-Guide.md)
-4. **Windows web/privesc:** [`Love`](./Love-HTB-Creative-Guide.md) → [`Netmon`](./Netmon-HTB-Creative-Guide.md)
-5. **Active Directory chains:** [`Support`](./Support-HTB-Creative-Guide.md) → [`Fluffy`](./Fluffy-HTB-Creative-Guide.md)
+1. **Classic fundamentals:** [`Lame`](./Lame-HTB.md) → [`Blocky`](./Blocky-HTB.md)
+2. **Linux web-to-root:** [`TwoMillion`](./TwoMillion-HTB.md) → [`Down`](./Down-HTB.md) → [`Editor`](./Editor-HTB.md) → [`Orion`](./Orion.md)
+3. **Source/config disclosure:** [`Dog`](./Dog-HTB.md)
+4. **Windows web/privesc:** [`Love`](./Love-HTB.md) → [`Netmon`](./Netmon-HTB.md)
+5. **Active Directory chains:** [`Support`](./Support-HTB.md) → [`Fluffy`](./Fluffy-HTB.md)
 6. **Spoiler-safe mindset posts:** [`Checkpoint`](./Checkpoint_HTB_NoSpoilers.md) → [`Reactor`](./Reactor.md) → [`Logging`](./Logging-HTB.md)
 7. **Visual report style:** [`Snapped`](./Snapped_HTB_Writeup.html)
 
@@ -269,10 +305,10 @@ PowerShell  certipy           responder       ntlmrelayx
 
 - [x] Add full creative guides for first 10 retired/rooted boxes
 - [x] Add all writeups to the README writeups section
-- [ ] Add difficulty badges for every machine row
-- [ ] Add tags at the top of every guide
-- [ ] Add a machine index grouped by OS and technique
-- [ ] Add defensive detection notes to each retired-box walkthrough
+- [x] Add difficulty badges for every machine row
+- [x] Add tags at the top of every guide
+- [x] Add a machine index grouped by OS and technique
+- [x] Add defensive detection notes to each retired-box walkthrough
 - [ ] Add screenshots/diagrams where GitHub-safe
 - [ ] Convert selected writeups into portfolio-style HTML reports
 

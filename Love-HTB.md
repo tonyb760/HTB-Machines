@@ -207,6 +207,11 @@ curl -s 'http://love.htb/images/cmd.php?cmd=type%20C:\ProgramData\root_flag.txt'
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Monitor server-side scanners for requests to localhost, RFC1918, link-local, and other internal-only destinations, then review the requesting user.
+- Alert on executable content uploaded through web forms and on `msiexec.exe` activity where AlwaysInstallElevated is enabled.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Prevent SSRF with strict URL allowlists and egress controls |

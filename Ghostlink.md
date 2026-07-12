@@ -7,6 +7,7 @@
 > **Platform:** Windows / Active Directory  
 > **Difficulty:** Hard  
 > **Outcome:** User and root compromise achieved.
+> **Tags:** `windows` `active-directory` `mqtt` `ntlm-relay` `adcs`
 
 ---
 

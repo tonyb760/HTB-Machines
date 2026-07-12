@@ -198,6 +198,11 @@ impacket-wmiexec fluffy.htb/administrator@10.129.232.88 -hashes '<lm>:<ntlm>'
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Detect outbound NTLM authentication to unapproved hosts and investigate coercion-related file or shortcut activity in writable shares.
+- Alert on changes to UPNs, `msDS-KeyCredentialLink`, and certificate enrollment/authentication activity that deviates from normal account behavior.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Restrict write access to shared folders used by privileged users |

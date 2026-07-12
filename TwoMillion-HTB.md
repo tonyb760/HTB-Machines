@@ -208,6 +208,11 @@ make
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Alert on administrative API requests carrying shell metacharacters and on web-service child processes that execute system commands.
+- Monitor unusual FUSE mounts or user-namespace activity and correlate it with privilege changes on hosts awaiting kernel remediation.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Never trust role-sensitive functionality purely client-side/API-discoverable |

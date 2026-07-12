@@ -3,6 +3,8 @@
 > A creative, spoiler-safe guide for an active Hack The Box machine.
 >
 > No flags. No commands. No payloads. No endpoint lists. No credential leaks.
+>
+> **Tags:** `web` `enumeration` `hypothesis-testing` `spoiler-free` `methodology`
 
 ## Why This Guide Exists
 

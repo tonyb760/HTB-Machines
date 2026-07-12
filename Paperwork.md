@@ -1,7 +1,8 @@
 # Paperwork — A Tale of Three Daemons
 
 **Machine:** Paperwork (HTB, Easy)  
-**Role:** The printer that talked too much
+**Role:** The printer that talked too much<br>
+**Tags:** `linux` `printer-services` `local-daemons` `path-traversal` `privilege-escalation`
 
 ---
 

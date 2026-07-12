@@ -192,6 +192,11 @@ sshpass -p 'BackDropJ2024DS2024' ssh -tt johncusack@10.129.231.223 \
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Alert on requests for `.git/HEAD`, `.git/config`, object packs, and other repository internals below a web root.
+- Audit sudo invocations of CMS helper tools and investigate `eval`-style subcommands or unexpected working directories.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Never deploy `.git` directories to web roots |

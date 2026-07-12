@@ -187,6 +187,11 @@ cat user_flag.txt
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Alert on SMB authentication attempts whose usernames contain shell metacharacters or command-substitution syntax.
+- Investigate Samba child processes that execute shells, network utilities, or read sensitive files under elevated service context.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Retire unsupported Samba versions immediately |

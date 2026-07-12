@@ -5,6 +5,7 @@
 > **Category:** Windows / Active Directory  
 > **Write-up type:** Public, no-spoiler technical reflection  
 > **Spoiler policy:** No flags, passwords, hashes, exact object names, target IPs, or full exploit commands
+> **Tags:** `windows` `active-directory` `kerberos` `forensics` `methodology`
 
 ![HTB](https://img.shields.io/badge/Hack%20The%20Box-Checkpoint-9FEF00?style=for-the-badge&logo=hackthebox&logoColor=black)
 ![Windows](https://img.shields.io/badge/Windows-Active%20Directory-0078D4?style=for-the-badge&logo=windows&logoColor=white)

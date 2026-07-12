@@ -5,6 +5,8 @@
   ![Focus](https://img.shields.io/badge/Focus-Enumeration%20%7C%20Web%20%7C%20Privesc-1f2937?style=for-the-badge)
 
   > A spoiler-light field guide for a box that rewards quiet enumeration, patient pivots, and disciplined local recon.
+  >
+  > **Tags:** `enumeration` `web` `local-recon` `credential-validation` `methodology`
 
   ---
 

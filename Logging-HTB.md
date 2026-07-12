@@ -11,6 +11,8 @@
 ![Domain](https://img.shields.io/badge/Domain-logging.htb-7C3AED?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Rooted-success?style=for-the-badge)
 
+**Tags:** `windows` `active-directory` `adcs` `gmsa` `wsus`
+
 <br>
 
 ### 🪵 *When logs talk too much, WSUS becomes a weapon.*

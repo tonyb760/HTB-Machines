@@ -196,6 +196,11 @@ sshpass -p '1uY3w22uc-Wr{xNHR~+E' ssh -tt aleks@10.129.234.87 "printf '%s\n' '1u
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Log and alert on URL-checker inputs containing local schemes, curl-option syntax, or file-oriented output directives.
+- Investigate process launches from the web service that access sensitive local files or invoke curl with unexpected arguments.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Never pass user-controlled URLs directly into shell/curl |

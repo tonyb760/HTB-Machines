@@ -5,6 +5,7 @@
 > **OS:** Windows / Active Directory  
 > **Difficulty:** Medium  
 > **Theme:** Lansweeper, credential capture, ACL abuse, admin pivot  
+> **Tags:** `windows` `active-directory` `lansweeper` `credential-capture` `acl-abuse`
 > **Author note:** This version is GitHub-friendly: flags are redacted, diagrams are embedded as Mermaid, and no external images are required.
 
 ---

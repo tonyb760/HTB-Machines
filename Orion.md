@@ -4,6 +4,7 @@
 > **Difficulty:** Easy  
 > **Category:** Web Exploitation, Credential Reuse, Privilege Escalation  
 > **CVE:** CVE-2025-32432, CVE-2026-24061  
+> **Tags:** `linux` `craft-cms` `php-deserialization` `credential-reuse` `telnetd`<br>
 > **Target IP:** `10.129.35.129`
 
 ---
@@ -19,7 +20,8 @@
 7. [SSH — Password Reuse](#ssh--password-reuse)
 8. [Privilege Escalation — CVE-2026-24061](#privilege-escalation--cve-2026-24061)
 9. [Flags](#flags)
-10. [Attack Chain Summary](#attack-chain-summary)
+10. [Detection and Hardening Notes](#detection-and-hardening-notes)
+11. [Attack Chain Summary](#attack-chain-summary)
 
 ---
 
@@ -572,6 +574,14 @@ USER="-f root" telnet -a 127.0.0.1
 |-----------|-------|
 | **User**  | `044659f32bd9e56500b2c77eb010cf02` |
 | **Root**  | `d7146e1e70d1b92deca0c6153038a7f2` |
+
+---
+
+## Detection and Hardening Notes
+
+- Patch Craft CMS promptly and alert on unexpected requests to asset-transformation actions, deserialization errors, or web-service child processes that launch shells.
+- Restrict access to application configuration files, monitor reads of `.env` and other secrets, and rotate exposed database credentials immediately.
+- Upgrade GNU inetutils; investigate local `telnetd` sessions that pass unexpected arguments to `/usr/bin/login`, particularly authentication-bypass flags.
 
 ---
 

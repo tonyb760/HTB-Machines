@@ -8,7 +8,8 @@
 </p>
 
 <p align="center">
-  <i>A Langflow RCE chain through Kubernetes nodes/proxy privilege escalation to host root.</i>
+  <i>A Langflow RCE chain through Kubernetes nodes/proxy privilege escalation to host root.</i><br>
+  <strong>Tags:</strong> <code>linux</code> <code>langflow</code> <code>rce</code> <code>jwt</code> <code>kubernetes</code>
 </p>
 
 ---

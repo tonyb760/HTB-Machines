@@ -191,6 +191,11 @@ curl -s --user anonymous:anonymous ftp://10.129.230.176/Users/Public/root.txt
 
 ## 🛡️ Defensive Takeaways
 
+### Detection Notes
+
+- Monitor anonymous FTP reads of configuration backups and alert when PRTG settings files are accessed or copied.
+- Review PRTG audit logs for notification or sensor changes that introduce command execution, unusual binaries, or new destinations.
+
 | # | Recommendation |
 |---:|---|
 | 1 | Disable anonymous FTP and restrict filesystem exposure |
