@@ -7,7 +7,7 @@
 [![Hack The Box](https://img.shields.io/badge/Hack%20The%20Box-Writeups-9FEF00?style=for-the-badge&logo=hackthebox&logoColor=black)](https://www.hackthebox.com/)
 ![Security](https://img.shields.io/badge/Focus-Offensive%20Security-2563EB?style=for-the-badge&logo=gnometerminal&logoColor=white)
 ![Spoiler Policy](https://img.shields.io/badge/Policy-Retired%20Boxes%20Only-7C3AED?style=for-the-badge)
-![Guides](https://img.shields.io/badge/Creative%20Guides-10-22C55E?style=for-the-badge&logo=markdown&logoColor=white)
+![Guides](https://img.shields.io/badge/Creative%20Guides-11-22C55E?style=for-the-badge&logo=markdown&logoColor=white)
 
 <br>
 
@@ -44,6 +44,7 @@
 | 12 | **Logging** | [`Logging-HTB.md`](./Logging-HTB.md) | GitHub-safe / active-box style | ADCS, gMSA, WSUS spoofing | ⚠️ Active-safe only |
 | 13 | **Reactor** | [`Reactor.md`](./Reactor.md) | Clean-room methodology | Next.js RCE, SQLite, Node Inspector | ⚠️ Active-safe only |
 | 14 | **Snapped** | [`Snapped_HTB_Writeup.html`](./Snapped_HTB_Writeup.html) | Creative HTML report | Visual report format | ✅ Published |
+| 15 | **Orion** | [`Orion.md`](./Orion.md) | Full creative guide | Craft CMS RCE, CVE-2025-32432, telnetd injection | ✅ Retired / Published |
 
 ---
 
@@ -54,13 +55,15 @@
 | Active Directory enumeration | Support, Fluffy, Logging, Checkpoint |
 | RBCD / Kerberos abuse | Support |
 | ADCS / certificate abuse | Fluffy, Logging |
-| Web application RCE | Editor, Love, Reactor |
+| Web application RCE | Editor, Love, Reactor, Orion |
 | Source/config disclosure | Dog, Blocky, Editor |
 | SSRF / file disclosure | Down, Love |
-| Legacy service exploitation | Lame, Netmon |
-| Linux privilege escalation | TwoMillion, Down, Editor, Dog, Blocky, Lame |
+| Legacy service exploitation | Lame, Netmon, Orion |
+| Linux privilege escalation | TwoMillion, Down, Editor, Dog, Blocky, Lame, Orion |
 | Windows privilege escalation | Love, Support, Fluffy, Netmon |
 | Evidence-driven analysis | Checkpoint, Netmon, Dog |
+| PHP object injection / deserialization | Orion |
+| CVE chaining (web + service) | Orion |
 | Creative report writing | Snapped, all creative guides |
 
 ---
@@ -234,15 +237,15 @@ PowerShell  certipy           responder       ntlmrelayx
 |---|---:|---|
 | Windows / AD | 4+ | Support, Fluffy, Logging, Checkpoint |
 | Windows / Web + PrivEsc | 2+ | Love, Netmon |
-| Linux / Web + PrivEsc | 7+ | TwoMillion, Down, Editor, Dog, Blocky, Reactor, Lame |
-| Full Creative Markdown Guides | 10 | TwoMillion, Support, Fluffy, Down, Editor, Dog, Love, Netmon, Blocky, Lame |
+| Linux / Web + PrivEsc | 8+ | TwoMillion, Down, Editor, Dog, Blocky, Reactor, Lame, Orion |
+| Full Creative Markdown Guides | 11 | TwoMillion, Support, Fluffy, Down, Editor, Dog, Love, Netmon, Blocky, Lame, Orion |
 | Active-safe / No-spoiler Posts | 3 | Logging, Checkpoint, Reactor |
 | Creative HTML Reports | 1+ | Snapped |
 
 <br>
 
-![Creative Guides](https://img.shields.io/badge/Creative%20Guides-10-9FEF00?style=for-the-badge&logo=markdown&logoColor=black)
-![Writeups](https://img.shields.io/badge/Total%20Writeups-14-2563EB?style=for-the-badge)
+![Creative Guides](https://img.shields.io/badge/Creative%20Guides-11-9FEF00?style=for-the-badge&logo=markdown&logoColor=black)
+![Writeups](https://img.shields.io/badge/Total%20Writeups-15-2563EB?style=for-the-badge)
 ![Windows](https://img.shields.io/badge/Windows%20AD-Growing-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-Web%20%26%20PrivEsc-E95420?style=for-the-badge&logo=linux&logoColor=white)
 
@@ -253,7 +256,7 @@ PowerShell  certipy           responder       ntlmrelayx
 # 📝 Suggested Reading Order
 
 1. **Classic fundamentals:** [`Lame`](./Lame-HTB-Creative-Guide.md) → [`Blocky`](./Blocky-HTB-Creative-Guide.md)
-2. **Linux web-to-root:** [`TwoMillion`](./TwoMillion-HTB-Creative-Guide.md) → [`Down`](./Down-HTB-Creative-Guide.md) → [`Editor`](./Editor-HTB-Creative-Guide.md)
+2. **Linux web-to-root:** [`TwoMillion`](./TwoMillion-HTB-Creative-Guide.md) → [`Down`](./Down-HTB-Creative-Guide.md) → [`Editor`](./Editor-HTB-Creative-Guide.md) → [`Orion`](./Orion.md)
 3. **Source/config disclosure:** [`Dog`](./Dog-HTB-Creative-Guide.md)
 4. **Windows web/privesc:** [`Love`](./Love-HTB-Creative-Guide.md) → [`Netmon`](./Netmon-HTB-Creative-Guide.md)
 5. **Active Directory chains:** [`Support`](./Support-HTB-Creative-Guide.md) → [`Fluffy`](./Fluffy-HTB-Creative-Guide.md)
