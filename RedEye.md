@@ -147,8 +147,6 @@ When the machine retires, the full technical write-up goes up — with diagrams,
 ## 🔗 Links
 
 - **Machine:** [Hack The Box — Unclaimed](https://app.hackthebox.com/machines/Unclaimed)
-- **Author:** *add your GitHub / blog here*
-- **Series:** *add your write-up index here*
 
 ---
 
